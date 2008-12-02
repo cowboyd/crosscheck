@@ -41,7 +41,6 @@
 	</target>
 
 	<target name="compile" depends="compile-javascript">
-		<!--<iajc srcdir="${src.dir}" destdir="${class.dir}" classpath="${aspectjrt.jar}:${tagsoup.jar}" inpath="${jsc.output.dir}:${rhino.jar}" source="1.5" xlint="ignore"/>-->
 		<javac classpath="${rhino.jar}:${tagsoup.jar}:${jsc.output.dir}" srcdir="${src.dir}" destdir="${class.dir}" debug="on"/>
 	</target>
 
@@ -51,7 +50,7 @@
 			<fileset dir="${jsc.output.dir}"/>
 			<fileset dir="${class.dir}"/>
 		</copy>
-		<unzip src="${aspectjrt.jar}" dest="${jar.dir}"/>
+		<unzip src="${rhino.jar}" dest="${jar.dir}"/>
 		<jar destfile="${jar.file}" basedir="${jar.dir}">
 			<manifest>
 				<attribute name="Main-Class" value="crosscheck.ConsoleRunner"/>
