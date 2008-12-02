@@ -1,7 +1,6 @@
 package crosscheck;
 
-import crosscheck.hosts.W3C;
-
+import crosscheck.hosts.FireFox3;
 
 public class ConsoleRunner {
 	public static void main(String[] args) {
@@ -45,6 +44,6 @@ public class ConsoleRunner {
 			public void error(TestResult result) {
 				System.out.print("E");
 			}
-		}, W3C.HOST);
+		}, new FireFox3());
 	}
 }

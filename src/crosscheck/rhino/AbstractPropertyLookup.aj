@@ -11,18 +11,18 @@ aspect AbstractPropertyLookup {
 	pointcut puts(Scriptable object, String name, Scriptable start, Object value): call(void Scriptable.put(String, Scriptable, Object)) && target(object) && args(name, start, value);
 
 	before(Scriptable object, int index, Scriptable start): geti(object, index, start) {
-        System.out.println("about to get indexed property of <" + object.getClass().getName() + ">: " + index);
+        //System.out.println("about to get indexed property of <" + object.getClass().getName() + ">: " + index);
 	}
 
 	before(Scriptable object, String name, Scriptable start): gets(object, name, start) {
-		System.out.println("about to get named property of <" + object.getClass().getName() + ">: " + name);
+		//System.out.println("about to get named property of <" + object.getClass().getName() + ">: " + name);
 	}
 
 	before(Scriptable object, int index, Scriptable start, Object value): puti(object, index, start, value) {
-		System.out.println("about to set indexed property of <" + object.getClass().getName() + ">: " + index + " -> " + value);
+		//System.out.println("about to set indexed property of <" + object.getClass().getName() + ">: " + index + " -> " + value);
 	}
-	
+
 	before(Scriptable object, String name, Scriptable start, Object value): puts(object, name, start, value) {
-		System.out.println("about to set named property of <" + object.getClass().getName() + ">: " + name + " -> " + value);
+		//System.out.println("about to set named property of <" + object.getClass().getName() + ">: " + name + " -> " + value);
 	}
 }

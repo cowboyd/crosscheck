@@ -33,12 +33,16 @@
 			<arg path="${js.src.dir}/bootstrap.js"/>
 			<arg path="${js.src.dir}/assertions.js"/>
 			<arg path="${js.src.dir}/dom.js"/>
+			<arg path="${js.src.dir}/html.js"/>
+			<arg path="${js.src.dir}/host.js"/>
+			<arg path="${js.src.dir}/hosts/firefox_3_0.js"/>
+			<arg path="${js.src.dir}/hosts/IE_6.js"/>
 		</java>
 	</target>
 
 	<target name="compile" depends="compile-javascript">
-		<iajc srcdir="${src.dir}" destdir="${class.dir}" classpath="${aspectjrt.jar}:${tagsoup.jar}" inpath="${jsc.output.dir}:${rhino.jar}" source="1.5" xlint="ignore"/>
-		<!--<javac classpath="${rhino.jar}:${tagsoup.jar}:${jsc.output.dir}" srcdir="${src.dir}" destdir="${class.dir}" debug="on"/>-->
+		<!--<iajc srcdir="${src.dir}" destdir="${class.dir}" classpath="${aspectjrt.jar}:${tagsoup.jar}" inpath="${jsc.output.dir}:${rhino.jar}" source="1.5" xlint="ignore"/>-->
+		<javac classpath="${rhino.jar}:${tagsoup.jar}:${jsc.output.dir}" srcdir="${src.dir}" destdir="${class.dir}" debug="on"/>
 	</target>
 
 	<target name="jar" depends="compile">
@@ -57,7 +61,12 @@
 
 	<target name="test" depends="jar">
 		<java jar="${jar.file}" fork="true">
-			<arg line="test/assertions.jst"/>
+			<arg line="test/jshost.jst"/>
+			<arg line="test/jshost.inheritance.jst"/>
+			<!--<arg line="test/run.jst"/>-->
+			<!--<arg line="test/assertions.jst"/>-->
+			<arg line="test/common.dom.jst"/>
+			<!--<arg line="test/interface.dom.jst"/>-->
 		</java>
 	</target>
 </project>

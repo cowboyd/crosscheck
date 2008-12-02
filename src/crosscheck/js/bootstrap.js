@@ -1,9 +1,8 @@
-
+//noinspection JSUnresolvedVariable,JSUndeclaredVariable
 crosscheck = {
 
-	get path() {return this.internal.engine.path},
-
 	load: function(fileName) {
+		//noinspection JSUnresolvedVariable
 		this.internal.scripts.load(fileName, this.internal.scope)
 	},
 
@@ -15,10 +14,15 @@ crosscheck = {
 		if (typeof message == 'undefined') {
 			message = null;
 		}
-		java.lang.System.out.println(message)	
+		//noinspection JSUnresolvedFunction,JSUnresolvedVariable
+		java.lang.System.out.println(message)
 	},
 
 	java: Packages.crosscheck,
+
+	depends: function() {
+		crosscheck.internal.bridge.execScriptClass.apply(crosscheck.internal.bridge, arguments)
+	},
 
 	internal: {
 
@@ -27,11 +31,11 @@ crosscheck = {
 		Suite: function(name, methods) {
 			this._name = name
 			this._cases = []
-			for (var name in methods) {
-				if (name.match(/^test_/)) {
-					var method = methods[name]
+			for (var m in methods) {
+				if (m.match(/^test_/)) {
+					var method = methods[m]
 					if (typeof method == 'function') {
-						this._cases.push(new crosscheck.java.core.TestCaseController(name, methods, crosscheck.internal.scripts))
+						this._cases.push(new crosscheck.java.core.TestCaseController(m, methods, crosscheck.internal.scripts))
 					}
 				}
 			}
@@ -43,22 +47,43 @@ crosscheck = {
 			if (methods.setup) {
 				methods.setup.call(methods)
 			}
-			
+
 			methods[name].call(methods)
 			if (methods.teardown) {
 				methods.teardown.call(methods)
 			}
 			listener.ok(new crosscheck.java.TestResult({
-				isOk: function() {return true},
-				getTest: function() {return jtest},
-				getMessage: function() {return ""},
-				getStack: function() {return []},
-				getHost: function() {return host}
+				isOk: function() {
+					return true
+				},
+				getTest: function() {
+					return jtest
+				},
+				getMessage: function() {
+					return ""
+				},
+				getStack: function() {
+					return []
+				},
+				getHost: function() {
+					return host
+				}
 			}))
 
 		}
+	},
+
+	metadef: function(superclass, definition) {
+		if (typeof definition == 'undefined') {
+			return new CrosscheckMetaDef(null, superclass)
+		} else {
+			return new CrosscheckMetaDef(superclass, definition)
+		}
 	}
 }
+
+//noinspection JSUnresolvedVariable
+crosscheck.metadef.access = crosscheck.java.core.CrosscheckMetaDef.ACCESS
 
 crosscheck.internal.Suite.prototype = {
 
@@ -99,7 +124,7 @@ crosscheck.internal.Suite.prototype = {
 			}), host)
 
 		}
-		
+
 		listener.suiteFinished(jtest, host, passes, failures, errors)
 	}
 }
