@@ -34,19 +34,14 @@ crosscheck.suite('Javascript Host Object Inheritance', {
 
 	//@{host: ['FireFox3', 'IE6'], skip: true}
 	test_two_levels_of_inheritance_and_invoking_the_super_constructor: function() {
-		var puts = function(msg) {
-			java.lang.System.out.println(msg)
-		}
 		var A = this.def(function($) {
 			this.initializer(function(one) {
-//				puts('A(' + one + ')')
 				$(this).one = one
 			})
 			this.attrReadOnly('one')
 		})
 		var B = this.def(A, function($) {
 			this.initializer(function($super, one, two) {
-//				puts('B(' + one + ',' + two + ')')
 				$super(one)
 				$(this).two = two
 			})
@@ -54,7 +49,6 @@ crosscheck.suite('Javascript Host Object Inheritance', {
 		})
 		var C = this.def(B, function($) {
 			this.initializer(function($super, one, two, three) {
-//				puts('C(' + one + ',' + two + ',' + three + ')')
 				$super(one, two)
 				$(this).three = three
 			})
@@ -64,5 +58,17 @@ crosscheck.suite('Javascript Host Object Inheritance', {
 		assertEquals(1, c.one)
 		assertEquals(2, c.two)
 		assertEquals(3, c.three)
+	},
+
+	test_invoking_private_super_methods: function() {
+		var A = this.def(function() {
+			this.privateMethod('word', function() {
+				return "grease"
+			})
+		})
+		var B = this.def(A, function() {})
+
+		var b = new B()
+		assertEquals('grease', crosscheck.metadef.access(b).word())
 	}
 })

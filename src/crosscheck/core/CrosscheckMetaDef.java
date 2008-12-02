@@ -122,6 +122,8 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 			this.prototype = new Prototype(this, scope);
 			if (this.superclass != null) {
 				this.prototype.setPrototype(superclass.getPrototype());
+				this.privateInterface.superclass = superclass.privateInterface;
+				this.privateInterface.prototype.setPrototype(superclass.privateInterface.prototype);
 			}
 		}
 

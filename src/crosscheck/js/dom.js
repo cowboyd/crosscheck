@@ -43,7 +43,7 @@ crosscheck.dom = (function() {
 			return this.hasChildNodes() ? this.childNodes.item(0) : null
 		})
 		this.attrReadOnly('lastChild', function() {
-			this.hasChildNodes() ? this.childNodes.item(this.childNodes.length - 1) : null
+			return this.hasChildNodes() ? this.childNodes.item(this.childNodes.length - 1) : null
 		})
 		this.attrReadOnly('previousSibling', function() {
 			return null;
@@ -70,9 +70,9 @@ crosscheck.dom = (function() {
 			insertBefore: function(newChild, refChild) {
 				var index = $(this).children.indexOf(refChild)
 				if (index < 0) {
-					$(this).insertAt(newChild, this.childNodes.length - 1)
+					return $(this).insertAt(newChild, this.childNodes.length - 1)
 				} else {
-					$(this).insertAt(newChild, index)
+					return $(this).insertAt(newChild, index)
 				}
 			},
 			isSupported: function(feature, version) {
@@ -112,6 +112,7 @@ crosscheck.dom = (function() {
 					$(newChild).parentNode = this
 					$(this).children.splice(index, 0, newChild)
 				}
+				return newChild
 			},
 			insertAfter: function(newChild, refChild) {
 				$(this).insertAt(newChild, $(this).children.indexOf(refChild))
