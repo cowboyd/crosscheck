@@ -1,0 +1,181 @@
+
+crosscheck.suite('Javascript Host Object Protocol', {
+
+	def: function(body) {
+		return crosscheck.metadef(body)
+	},
+
+	puts: function(msg) {
+		msg = msg || ""
+		//noinspection JSUnresolvedVariable
+		java.lang.System.out.println(msg)
+	},
+
+	access: function(object) {
+		return crosscheck.metadef.access(object)
+	},
+
+	test_set_constructor_properties_and_access_private_interface: function() {
+
+		var $ = crosscheck.metadef.access
+
+		var HostClass = this.def(function($) {
+			this.initializer(function(one, two) {
+				$(this, {
+					one: one,
+					two: two
+				})
+			})
+		})
+		var host = new HostClass(1,2)
+		assertNotDefined(host.one)
+		assertNotDefined(host.two)
+		assertEquals(1, $(host).one)
+		assertEquals(2, $(host).two)
+
+		host.one = 'one'
+		assertEquals('one', host.one)
+		assertEquals(1, $(host).one)
+	},
+
+	test_define_a_readonly_attribute_cannot_be_changed: function() {
+		var HostClass = this.def(function($) {
+			this.initializer(function(one, two) {
+				$(this, {
+					one: one,
+					two: two
+				})
+			})
+			this.attrReadOnly('one', 'two')
+		})
+		var host = new HostClass('one', 'two')
+		assertEquals("one", host.one)
+		assertEquals("two", host.two)
+		host.one = 1
+		host.two = 2
+		assertEquals("one", host.one)
+		assertEquals("two", host.two)
+
+		delete host.one
+		delete host.two
+		assertEquals("one", host.one)
+		assertEquals("two", host.two)
+	},
+
+	test_a_readwrite_attribute_can_be_changed_but_is_not_deleted: function() {
+		var Instance = this.def(function() {
+			this.attrReadWrite('one', 'two')
+		})
+		var i = new Instance()
+		i.one = 'one'
+		assertEquals('one', i.one)
+		i.one = 1
+		assertEquals(1, i.one)
+		delete i.one
+		assertEquals(1, i.one)
+	},
+
+	test_define_a_readonly_attribute_via_a_getter: function() {
+		var Circle = this.def(function($) {
+			this.initializer(function(radius) {
+				$(this).radius = radius
+			})
+			this.attrReadOnly('radius')
+			this.attrReadOnly('diameter', function() {
+				return $(this).radius * 2
+			})
+		})
+
+		var c = new Circle(5)
+		assertEquals(5, c.radius)
+		assertEquals(10, c.diameter)
+	},
+
+	test_define_an_accessor_via_a_setter_and_getter: function() {
+		var Circle = this.def(function($) {
+			this.initializer(function(radius) {
+				$(this).radius = radius
+			})
+			this.attrReadOnly('radius')
+			this.attrReadWrite('diameter', {
+				get: function() {
+					return $(this).radius * 2
+				},
+				set: function(value) {
+					$(this).radius = value / 2
+				}
+			})
+		})
+
+		var c = new Circle(5)
+		assertEquals(10, c.diameter)
+		c.diameter = 5
+		assertEquals(2.5, c.radius)
+		assertEquals(5, c.diameter)
+	},
+
+	test_define_a_public_method_which_cannot_be_deleted: function() {
+		var Calc = this.def(function() {
+			this.constant('multiply', function(lhs, rhs) {
+				return lhs * rhs
+			})
+		})
+		var c = new Calc()
+		assertEquals(10, c.multiply(5, 2))
+		delete c.multiply
+		assertEquals('function', typeof c.multiply)
+	},
+
+	test_define_a_set_of_methods: function() {
+		var Calc = this.def(function() {
+			this.constants({
+				MULT_SYMBOL: "*",
+				multiply: function(lhs, rhs) {
+					return lhs * rhs;
+				},
+				divide: function(lhs, rhs) {
+					return lhs / rhs;
+				}
+			})
+		})
+		var c = new Calc()
+		assertEquals("*", c.MULT_SYMBOL)
+		assertEquals(10, c.multiply(5,2))
+		assertEquals(5, c.divide(10, 2))
+	},
+
+	test_a_private_methods: function() {
+		var t = this
+		var Circle = this.def(function($) {
+			this.initializer(function() {
+				$(this).init()
+			})
+			this.privateMethod('init', function() {
+				$(this).radius = 5
+			})
+			this.attrReadOnly('radius')
+		})
+		var c = new Circle()
+		assertEquals(5, c.radius)
+	},
+
+	test_define_several_private_methods: function() {
+		var Circle = this.def(function($) {
+			this.initializer(function() {
+				$(this).init()
+				$(this).expand(3)
+			})
+			this.privateMethods({
+				init: function() {
+					$(this).radius = 5
+				},
+				expand: function(factor) {
+					$(this).radius = $(this).radius * factor
+				}
+			})
+
+		})
+		var c = new Circle()
+		assertEquals(15, this.access(c).radius)
+	}
+})
