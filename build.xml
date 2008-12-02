@@ -15,8 +15,6 @@
 	<property name="aspectjtools.jar" value="${lib.dir}/aspectjtools-1.6.jar"/>
 	<property name="aspectjrt.jar" value="${lib.dir}/aspectjrt-1.6.jar"/>
 
-	<taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties" classpath="${aspectjtools.jar}"/>
-
 	<target name="init">
 		<mkdir dir="${build.dir}"/>
 		<mkdir dir="${jsc.output.dir}"/>
