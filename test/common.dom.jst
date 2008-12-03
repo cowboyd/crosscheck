@@ -47,37 +47,44 @@ crosscheck.suite("Core DOM", {
 		assertEquals(original, parent.firstChild);
 		assertEquals(result, parent.lastChild);
 	},
-//
-//	test_splitText: function() {
-//		var original = document.createTextNode('onetwo');
-//
-//		var result = original.splitText(0)
-//
-//		assertEquals('', original.data)
-//		assertEquals('onetwo', result.data)
-//
-//		original = result
-//		result = original.splitText(3)
-//		assertEquals('one', original.data)
-//		assertEquals('two', result.data)
-//
-//		original = result
-//		result = original.splitText(3)
-//		assertEquals('two', original.data)
-//		assertEquals('', result.data)
-//	},
-//
-//	test_splitText_appends_new_node_to_parent: function() {
-//		var parent = document.createElement('div');
-//		var original = parent.appendChild(document.createTextNode('onetwo'))
-//		var result = original.splitText(3)
-//
-//		assertEquals(parent, original.parentNode)
-//		assertEquals(parent, result.parentNode)
-//	},
+
+	test_splitText: function() {
+		var original = document.createTextNode('onetwo');
+
+		var result = original.splitText(0)
+
+		assertEquals('', original.data)
+		assertEquals('onetwo', result.data)
+
+		original = result
+		result = original.splitText(3)
+		assertEquals('one', original.data)
+		assertEquals('two', result.data)
+
+		original = result
+		result = original.splitText(3)
+		assertEquals('two', original.data)
+		assertEquals('', result.data)
+	},
+
+	test_splitText_appends_new_node_to_parent: function() {
+		var parent = document.createElement('div');
+		var original = parent.appendChild(document.createTextNode('onetwo'))
+		var result = original.splitText(3)
+
+		assertEquals(parent, original.parentNode)
+		assertEquals(parent, result.parentNode)
+	},
 
 	test_splitText_works_with_CDATASection_elements_and_creates_new_CDATASection: function() {
+		var parent = document.createElement('div')
+		var original = parent.appendChild(document.createCDATASection('onetwo'))
+		var result = original.splitText(3)
 
+		assertEquals('two', result.data)
+		assertEquals(original, parent.firstChild)
+		assertEquals(result, parent.lastChild)
+		assertEquals(crosscheck.dom.CDATA_SECTION_NODE, result.nodeType)
 	},
 //
 //	test_offsetParent: function() {

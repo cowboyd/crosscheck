@@ -276,14 +276,15 @@ crosscheck.dom = (function() {
 	var Text = def(CharacterData, function($) {
 		this.initializer(function($super, document, nodeType, data) {
 			if (!nodeType) nodeType = TEXT_NODE
-//			pargs('Text', arguments)
 			$super(document, nodeType, data)
 		})
 		this.attrReadOnly('nodeName', "#text")
 		this.method('splitText', function(offset) {
 			var unsplit = $(this).data
 			$(this).data = unsplit.slice(0, offset)
-			var next = this.ownerDocument.createTextNode(unsplit.slice(offset).join(''))
+			var doc = this.ownerDocument;
+			var nextData = unsplit.slice(offset).join('')
+			var next = this.nodeType == CDATA_SECTION_NODE ? doc.createCDATASection(nextData) : doc.createTextNode(nextData)
 			if (this.parentNode) {
 				$(this.parentNode).insertAfter(next, this)
 			}
