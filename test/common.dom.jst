@@ -116,20 +116,20 @@ crosscheck.suite("Core DOM", {
 //		assertEquals(abs.parentNode, desc.offsetParent)
 //	},
 //
-//	test_insertBefore_with_null_reference_node: function() {
-//		var element = document.createElement('div');
-//		element.insertBefore(document.createElement('span'), null);
-//		assertTrue(1, element.childNodes.length);
-//	},
-//
-//	test_insertBefore_appends_with_null_reference_node: function() {
-//		var element = document.createElement('div');
-//		var first = element.appendChild(document.createElement('span'));
-//
-//		var next = element.insertBefore(document.createElement('span'), null);
-//		assertEquals(first, element.firstChild);
-//		assertEquals(next, element.lastChild);
-//	},
+	test_insertBefore_with_null_reference_node: function() {
+		var element = document.createElement('div');
+		element.insertBefore(document.createElement('span'), null);
+		assertTrue(1, element.childNodes.length);
+	},
+
+	test_insertBefore_appends_with_null_reference_node: function() {
+		var element = document.createElement('div');
+		var first = element.appendChild(document.createElement('span'));
+
+		var next = element.insertBefore(document.createElement('span'), null);
+		assertEquals(first, element.firstChild);
+		assertEquals(next, element.lastChild);
+	},
 //
 //	test_default_document_structure: function() {
 //		var docElement = document.documentElement;
@@ -137,17 +137,32 @@ crosscheck.suite("Core DOM", {
 //		assertEquals('HEAD', docElement.childNodes[0].nodeName)
 //		assertEquals('BODY', docElement.childNodes[1].nodeName)
 //	},
-//
-//	test_attributes_are_available_via_index: function() {
+
+	test_setAttribute: function() {
+		var div = document.createElement('div')
+		div.setAttribute('we', 'await')
+		assertEquals('await', div.getAttribute('we'))
+		var node = div.getAttributeNode('we')
+		assertDefined(node)
+		assertNotNull(node)
+		assertEquals('we', node.name)
+		assertEquals('await', node.value)
+	},
+
+	test_attributes_are_available_via_index: function() {
 //		var source = crosscheck.Host.parse("<div we='await' silent='tristeros' empire='' />");
-//		assertEquals(3, source.attributes.length);
-//
-//		var attr0 = source.attributes.item(0);
-//		var attr1 = source.attributes.item(1);
+		var div = document.createElement('div')
+		div.setAttribute('we', 'await')
+		div.setAttribute('silent', 'tristeros')
+		div.setAttribute('empire', '')
+		assertEquals(3, div.attributes.length);
+
+		assertEquals(div.getAttributeNode('we'), div.attributes.item(0))
+		assertEquals(div.getAttributeNode('silent'), div.attributes.item(1))
 //
 //		assertEquals(attr0, source.attributes[0]);
 //		assertEquals(attr1, source.attributes[1]);
-//	},
+	},
 //
 //	test_childNodes_are_available_via_index: function() {
 //		var source = crosscheck.dom.write("<div><span/><span/></div>");

@@ -164,7 +164,11 @@ crosscheck.dom = (function() {
 	var NamedNodeMap = def(function($) {
 		//noinspection JSUnresolvedFunction
 		this.initializer(function() {
-			$(this).map = new java.util.HashMap()
+			$(this, {
+				map: new java.util.HashMap(),
+				list: [] //used for referencing attributes by index.
+			})
+//			$(this).map = new java.util.HashMap()
 		})
 
 		//noinspection JSUnresolvedFunction
@@ -174,22 +178,42 @@ crosscheck.dom = (function() {
 		//noinspection JSUnresolvedFunction,JSUnusedLocalSymbols,JSUnusedLocalSymbols
 		this.methods({
 			getNamedItem: function(name) {
-				return $(this).map.get(name)
+				return $(this).map.get(name).value
 			},
 			getNamedItemNS: function(namespaceURI, localName) {
 				throw 'not supported by crosscheck'
 			},
 			item: function(index) {
-				return $(this).map.values().get(index)
+				return $(this).list[index]
 			},
 			removeNamedItem: function(name) {
-				$(this).map.remove(name)
+				var entry = $(this).map.get(name)
+				if (entry) {
+					$(this).map.remove(entry)
+					$(this).list.splice(entry.index, 1)
+					return entry.value
+				} else {
+					throw "NOT_FOUND_ERR"
+				}
 			},
 			removeNamedItemNS: function(namespaceURI, localName) {
 				throw 'not supproted by crosscheck'
 			},
 			setNamedItem: function(node) {
-				$(this).map.put(node.nodeName, node)
+				var entry = $(this).map.get(node.nodeName)
+				if (entry) {
+					var oldAttr = entry.value;
+					entry.value = node
+					return oldAttr
+				} else {
+					entry = {
+						value: node,
+						index: $(this).list.length
+					}
+					$(this).map.put(node.nodeName, entry)
+					$(this).list.push(node)
+					return null
+				}
 			},
 			setNamedItemNS: function(namespaceURI, localName) {
 				throw 'not supported by crosscheck'
@@ -417,7 +441,7 @@ crosscheck.dom = (function() {
 			},
 
 			getAttributeNode: function(name) {
-				return this._attributes.getNamedItem(name)
+				return this.attributes.getNamedItem(name)
 			},
 
 			getAttributeNodeNS: function(namespaceURI, localName) {
