@@ -331,7 +331,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 			private static final Function TO_STRING = new BaseFunction() {
 				@Override
 				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
-					return "[object " + thisObj.getClass().getSimpleName() + "]";
+					return "[object " + thisObj.getClass().getSimpleName() + "@" + thisObj.hashCode() + "]";
 				}
 			};
 

@@ -45,8 +45,23 @@ crosscheck.dom = (function() {
 		this.attrReadOnly('lastChild', function() {
 			return this.hasChildNodes() ? this.childNodes.item(this.childNodes.length - 1) : null
 		})
+		this.attrReadOnly('nextSibling', function() {
+			if (this.parentNode) {
+				var children = $(this.parentNode).children;
+				var idx = children.indexOf(this)
+				return children.length - idx > 1 ? children[idx + 1] : null
+			} else {
+				return null
+			}
+		})
 		this.attrReadOnly('previousSibling', function() {
-			return null;
+			if (this.parentNode) {
+				var children = $(this.parentNode).children
+				var idx = children.indexOf(this)
+				return idx > 0 ? children[idx - 1] : null
+			} else {
+				return null
+			}
 		})
 
 		this.attrReadOnly('ownerDocument', 'attributes', 'parentNode', 'localName', 'nodeType')
@@ -70,7 +85,7 @@ crosscheck.dom = (function() {
 			insertBefore: function(newChild, refChild) {
 				var index = $(this).children.indexOf(refChild)
 				if (index < 0) {
-					return $(this).insertAt(newChild, this.childNodes.length - 1)
+					return $(this).insertAt(newChild, this.childNodes.length)
 				} else {
 					return $(this).insertAt(newChild, index)
 				}
@@ -84,9 +99,10 @@ crosscheck.dom = (function() {
 			removeChild: function(oldChild) {
 				var index = $(this).children.indexOf(oldChild)
 				if (index >= 0) {
-					$(this).children.slice(index, 1)
+					$(this).children.splice(index, 1)
 					$(oldChild).parentNode = null
 				}
+				return oldChild
 			},
 			replaceChild: function(newChild, oldChild) {
 				var index = $(this).children.indexOf(oldChild)
@@ -94,6 +110,7 @@ crosscheck.dom = (function() {
 					this.insertBefore(newChild, oldChild)
 					this.removeChild(oldChild)
 				}
+				return oldChild
 			}
 		})
 
@@ -103,7 +120,7 @@ crosscheck.dom = (function() {
 				if (newChild.nodeType == DOCUMENT_FRAGMENT_NODE) {
 					var children = newChild.childNodes
 					for (var i = 0; i < children.length; i++) {
-						$(this).insertAt(children[i], index + i)
+						$(this).insertAt(children.item(i), index + i)
 					}
 				} else {
 					if (newChild.parentNode) {
@@ -115,7 +132,7 @@ crosscheck.dom = (function() {
 				return newChild
 			},
 			insertAfter: function(newChild, refChild) {
-				$(this).insertAt(newChild, $(this).children.indexOf(refChild))
+				$(this).insertAt(newChild, $(this).children.indexOf(refChild) + 1)
 			}
 		})
 
@@ -265,8 +282,8 @@ crosscheck.dom = (function() {
 		this.attrReadOnly('nodeName', "#text")
 		this.method('splitText', function(offset) {
 			var unsplit = $(this).data
-			this.data = unsplit.slice(0, offset)
-			var next = this.ownerDocument.createTextNode(unsplit.slice(offset))
+			$(this).data = unsplit.slice(0, offset)
+			var next = this.ownerDocument.createTextNode(unsplit.slice(offset).join(''))
 			if (this.parentNode) {
 				$(this.parentNode).insertAfter(next, this)
 			}

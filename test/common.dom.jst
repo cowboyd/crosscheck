@@ -37,15 +37,16 @@ crosscheck.suite("Core DOM", {
 		document = new crosscheck.dom.Document();
 	},
 
-//	test_splitText_maintains_correct_child_order: function() {
-//		var parent = this.document.createElement('div');
-//		var original = this.document.createTextNode('onetwo');
-//		parent.appendChild(original);
-//
-//		var result = original.splitText(3);
-//		assertEquals(original, parent.firstChild);
-//		assertEquals(result, parent.lastChild);
-//	},
+	test_splitText_maintains_correct_child_order: function() {
+		var parent = document.createElement('div');
+		var original = document.createTextNode('onetwo');
+		parent.appendChild(original);
+
+		var result = original.splitText(3);
+		assertEquals('two', result.data)
+		assertEquals(original, parent.firstChild);
+		assertEquals(result, parent.lastChild);
+	},
 //
 //	test_splitText: function() {
 //		var original = document.createTextNode('onetwo');
@@ -74,6 +75,10 @@ crosscheck.suite("Core DOM", {
 //		assertEquals(parent, original.parentNode)
 //		assertEquals(parent, result.parentNode)
 //	},
+
+	test_splitText_works_with_CDATASection_elements_and_creates_new_CDATASection: function() {
+
+	},
 //
 //	test_offsetParent: function() {
 //		var html =
@@ -364,27 +369,27 @@ crosscheck.suite("Core DOM", {
 		assertEquals(child, parent.lastChild);
 		assertEquals(1, parent.childNodes.length);
 		assertEquals(child, parent.childNodes.item(0));
-	}
-//
-//	test_appendChild_with_Document_Fragment: function() {
-//		var parent = document.createElement('div')
-//		var one = document.createElement('div')
-//		var two = document.createElement('div')
-//		var three = document.createElement('div')
-//
-//		var fragment = document.createDocumentFragment()
-//		fragment.appendChild(one)
-//		fragment.appendChild(two)
-//		fragment.appendChild(three)
-//		parent.appendChild(fragment)
-//
-//		assertEquals(3, parent.childNodes.length)
-//		assertEquals(one, parent.firstChild)
-//		assertEquals(two, parent.childNodes.item(1))
-//		assertEquals(three, parent.lastChild)
-//
-//		assertEquals(0, fragment.childNodes.length)
-//	},
+	},
+
+	test_appendChild_with_Document_Fragment: function() {
+		var parent = document.createElement('div')
+		var one = document.createElement('div')
+		var two = document.createElement('div')
+		var three = document.createElement('div')
+
+		var fragment = document.createDocumentFragment()
+		fragment.appendChild(one)
+		fragment.appendChild(two)
+		fragment.appendChild(three)
+		parent.appendChild(fragment)
+
+		assertEquals(3, parent.childNodes.length)
+		assertEquals(one, parent.firstChild)
+		assertEquals(two, parent.childNodes.item(1))
+		assertEquals(three, parent.lastChild)
+
+		assertEquals(0, fragment.childNodes.length)
+	},
 //
 //	test_appendChild_from_wrong_document_causes_error: function() {
 //		var parent = document.createElement('div');
@@ -394,105 +399,105 @@ crosscheck.suite("Core DOM", {
 //		});
 //	},
 //
-//	test_insertBefore: function() {
-//		var parent = document.createElement('div');
-//		var refChild = parent.appendChild(document.createElement('span'));
-//		var lastChild = parent.appendChild(document.createElement('span'));
-//		var newChild = document.createElement('strong');
-//
-//		var result = parent.insertBefore(newChild, refChild);
-//		assertEquals(newChild, result);
-//
-//		assertEquals(3, parent.childNodes.length);
-//		assertEquals(newChild, parent.childNodes.item(0));
-//		assertEquals(refChild, parent.childNodes.item(1));
-//		assertEquals(lastChild, parent.childNodes.item(2));
-//
-//		assertEquals(parent, newChild.parentNode);
-//	},
-//
-//	test_insertBefore_with_a_DocumentFragment: function() {
-//		var parent = document.createElement('div')
-//		var fragment = document.createDocumentFragment()
-//		var one = document.createElement('div')
-//		var two = document.createElement('div')
-//		var three = document.createElement('div')
-//		fragment.appendChild(one)
-//		fragment.appendChild(two)
-//		fragment.appendChild(three)
-//
-//		var ref = document.createElement('div')
-//		parent.appendChild(ref)
-//		parent.insertBefore(fragment, ref)
-//		assertEquals(4, parent.childNodes.length)
-//		assertEquals(one, parent.firstChild)
-//		assertEquals(two, parent.childNodes.item(1))
-//		assertEquals(three, parent.childNodes.item(2))
-//		assertEquals(ref, parent.lastChild)
-//
-//		assertEquals(0, fragment.childNodes.length)
-//	},
-//
-//	test_removeChild: function() {
-//		var parent = document.createElement('div');
-//		var child1 = parent.appendChild(document.createElement('span'));
-//		var child2 = parent.appendChild(document.createElement('span'));
-//		var child3 = parent.appendChild(document.createElement('span'));
-//
-//		var result = parent.removeChild(child2);
-//		assertEquals(child2, result);
-//
-//		assertEquals(2, parent.childNodes.length);
-//		assertEquals(child1, parent.childNodes.item(0));
-//		assertEquals(child3, parent.childNodes.item(1));
-//
-//		assertNull(child2.parentNode);
-//	},
-//
-//	test_adding_a_child_to_a_different_node_removes_that_child_from_its_child_list: function() {
-//		var mother = document.createElement('div')
-//		var father = document.createElement('div')
-//		var johnBoy = document.createElement('div')
-//		var maryJoe = document.createElement('div')
-//		mother.appendChild(johnBoy)
-//		mother.appendChild(maryJoe)
-//		father.appendChild(johnBoy)
-//		father.insertBefore(maryJoe, johnBoy)
-//		assertEquals(maryJoe, father.firstChild)
-//		assertEquals(johnBoy, father.lastChild)
-//		assertEquals(0, mother.childNodes.length)
-//	},
-//
-//
-//	test_replaceChild: function() {
-//		var parent = document.createElement('div');
-//		var child1 = parent.appendChild(document.createElement('span'));
-//		var child2 = parent.appendChild(document.createElement('span'));
-//		var child3 = parent.appendChild(document.createElement('span'));
-//		var replacement = document.createElement('span');
-//
-//		var result = parent.replaceChild(replacement, child2);
-//		assertEquals(replacement, result);
-//
-//		assertEquals(3, parent.childNodes.length);
-//		assertEquals(child1, parent.childNodes.item(0));
-//		assertEquals(replacement, parent.childNodes.item(1));
-//		assertEquals(child3, parent.childNodes.item(2));
-//
-//		assertNull(child2.parentNode);
-//		assertEquals(parent, replacement.parentNode);
-//	},
-//
-//	test_nextSibling: function() {
-//		var parent = document.createElement('div');
-//		var child1 = parent.appendChild(document.createElement('span'));
-//		var child2 = parent.appendChild(document.createElement('p'));
-//		var child3 = parent.appendChild(document.createElement('em'));
-//
-//		assertEquals(child2, child1.nextSibling);
-//		assertEquals(child3, child2.nextSibling);
-//		assertEquals(null, child3.nextSibling);
-//	}
+	test_insertBefore: function() {
+		var parent = document.createElement('div');
+		var refChild = parent.appendChild(document.createElement('span'));
+		var lastChild = parent.appendChild(document.createElement('span'));
+		var newChild = document.createElement('strong');
+
+		var result = parent.insertBefore(newChild, refChild);
+		assertEquals(newChild, result);
+
+		assertEquals(3, parent.childNodes.length);
+		assertEquals(newChild, parent.childNodes.item(0));
+		assertEquals(refChild, parent.childNodes.item(1));
+		assertEquals(lastChild, parent.childNodes.item(2));
+
+		assertEquals(parent, newChild.parentNode);
+	},
+
+	test_insertBefore_with_a_DocumentFragment: function() {
+		var parent = document.createElement('div')
+		var fragment = document.createDocumentFragment()
+		var one = document.createElement('div')
+		var two = document.createElement('div')
+		var three = document.createElement('div')
+		fragment.appendChild(one)
+		fragment.appendChild(two)
+		fragment.appendChild(three)
+
+		var ref = document.createElement('div')
+		parent.appendChild(ref)
+		parent.insertBefore(fragment, ref)
+		assertEquals(4, parent.childNodes.length)
+		assertEquals(one, parent.firstChild)
+		assertEquals(two, parent.childNodes.item(1))
+		assertEquals(three, parent.childNodes.item(2))
+		assertEquals(ref, parent.lastChild)
+
+		assertEquals(0, fragment.childNodes.length)
+	},
+
+	test_removeChild: function() {
+		var parent = document.createElement('div');
+		var child1 = parent.appendChild(document.createElement('span'));
+		var child2 = parent.appendChild(document.createElement('span'));
+		var child3 = parent.appendChild(document.createElement('span'));
+
+		var result = parent.removeChild(child2);
+		assertEquals(child2, result);
+
+		assertEquals(2, parent.childNodes.length);
+		assertEquals(child1, parent.childNodes.item(0));
+		assertEquals(child3, parent.childNodes.item(1));
+
+		assertNull(child2.parentNode);
+	},
+
+	test_adding_a_child_to_a_different_node_removes_that_child_from_its_child_list: function() {
+		var mother = document.createElement('div')
+		var father = document.createElement('div')
+		var johnBoy = document.createElement('div')
+		var maryJoe = document.createElement('div')
+		mother.appendChild(johnBoy)
+		mother.appendChild(maryJoe)
+		father.appendChild(johnBoy)
+		father.insertBefore(maryJoe, johnBoy)
+		assertEquals(maryJoe, father.firstChild)
+		assertEquals(johnBoy, father.lastChild)
+		assertEquals(0, mother.childNodes.length)
+	},
+
+
+	test_replaceChild: function() {
+		var parent = document.createElement('div');
+		var child1 = parent.appendChild(document.createElement('span'));
+		var child2 = parent.appendChild(document.createElement('span'));
+		var child3 = parent.appendChild(document.createElement('span'));
+		var replacement = document.createElement('span');
+
+		var result = parent.replaceChild(replacement, child2);
+		assertEquals(child2, result);
+
+		assertEquals(3, parent.childNodes.length);
+		assertEquals(child1, parent.childNodes.item(0));
+		assertEquals(replacement, parent.childNodes.item(1));
+		assertEquals(child3, parent.childNodes.item(2));
+
+		assertNull(child2.parentNode);
+		assertEquals(parent, replacement.parentNode);
+	},
+
+	test_nextSibling: function() {
+		var parent = document.createElement('div');
+		var child1 = parent.appendChild(document.createElement('span'));
+		var child2 = parent.appendChild(document.createElement('p'));
+		var child3 = parent.appendChild(document.createElement('em'));
+
+		assertEquals(child2, child1.nextSibling);
+		assertEquals(child3, child2.nextSibling);
+		assertEquals(null, child3.nextSibling);
+	}
 //
 //	test_setting_innerHTML_element: function() {
 //		var div = document.createElement('DIV');
