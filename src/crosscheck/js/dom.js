@@ -107,8 +107,8 @@ crosscheck.dom = (function() {
 			replaceChild: function(newChild, oldChild) {
 				var index = $(this).children.indexOf(oldChild)
 				if (index >= 0) {
-					this.insertBefore(newChild, oldChild)
 					this.removeChild(oldChild)
+					$(this).insertAt(newChild, index)					
 				}
 				return oldChild
 			}
@@ -156,8 +156,11 @@ crosscheck.dom = (function() {
 		this.methods({
 			item: function(index) {
 				return $(this).list[index]
-			},
-			"[]": "item"
+			}
+		})
+
+		this.indexedLookup(function(index) {
+			return this.item(index)
 		})
 	})
 
@@ -168,7 +171,6 @@ crosscheck.dom = (function() {
 				map: new java.util.HashMap(),
 				list: [] //used for referencing attributes by index.
 			})
-//			$(this).map = new java.util.HashMap()
 		})
 
 		//noinspection JSUnresolvedFunction
@@ -179,9 +181,6 @@ crosscheck.dom = (function() {
 		this.methods({
 			getNamedItem: function(name) {
 				return $(this).map.get(name).value
-			},
-			getNamedItemNS: function(namespaceURI, localName) {
-				throw 'not supported by crosscheck'
 			},
 			item: function(index) {
 				return $(this).list[index]
@@ -195,9 +194,6 @@ crosscheck.dom = (function() {
 				} else {
 					throw "NOT_FOUND_ERR"
 				}
-			},
-			removeNamedItemNS: function(namespaceURI, localName) {
-				throw 'not supproted by crosscheck'
 			},
 			setNamedItem: function(node) {
 				var entry = $(this).map.get(node.nodeName)
@@ -214,10 +210,11 @@ crosscheck.dom = (function() {
 					$(this).list.push(node)
 					return null
 				}
-			},
-			setNamedItemNS: function(namespaceURI, localName) {
-				throw 'not supported by crosscheck'
 			}
+		})
+
+		this.indexedLookup(function(index) {
+			return this.item(index)
 		})
 
 		this.privateMethods({
@@ -248,14 +245,6 @@ crosscheck.dom = (function() {
 		this.attrAlias('name', 'nodeName')
 	})
 
-	var pargs = function(funcname, funcargs) {
-		var args = new Array(funcargs.length)
-		for	(var i = 0; i < funcargs.length; i++) {
-			args[i] = funcargs[i]
-		}
-		java.lang.System.out.println(funcname + '(' + args.join(',') + ")")
-	}
-
 	var CharacterData = def(Node, function($) {
 		this.initializer(function($super, document, nodeType, data) {
 			$super(document, nodeType)
@@ -274,9 +263,6 @@ crosscheck.dom = (function() {
 				$(this).data = data.split('')
 			}
 		})
-//		this.attrReadOnly('nodeValue', function() {
-//			return this.data
-//		})
 		this.attrAlias('data', 'nodeValue')
 		this.methods({
 			appendData: function(data) {
@@ -332,7 +318,6 @@ crosscheck.dom = (function() {
 
 	var Document = def(Node, function($) {
 		this.initializer(function($super) {
-//			pargs('Document', arguments)
 			$super(null, DOCUMENT_NODE)
 			$(this).idmap = new java.util.HashMap()
 		})
@@ -349,14 +334,8 @@ crosscheck.dom = (function() {
 			getElementsByTagName: function(tagName) {
 				return this.documentElement.getElementsByTagName(tagName)
 			},
-			getElementsByTagNameNS: function(namespaceURI, tagName) {
-				return this.documentElement.getElementsByTagNameNS(namespaceURI, tagName)
-			},
 			createAttribute: function(name) {
 				return new Attr(this, name, null, false)
-			},
-			createAttributeNS: function(namespaceURI, qualifedName) {
-				throw 'unsupported'
 			},
 			createCDATASection: function(data) {
 				return new CDATASection(this, data)
@@ -370,15 +349,9 @@ crosscheck.dom = (function() {
 			createElement: function(tagName) {
 				return new Element(this, tagName)
 			},
-
-			createElementNS: function() {
-				throw 'unsupported'
-			},
-
 			createEntityReference: function(name) {
 				return new EntityReference(this, name)
 			},
-
 			createProcessingInstruction: function(target, data) {
 				return new ProcessingInstruction(this, target, data)
 			},
@@ -435,40 +408,18 @@ crosscheck.dom = (function() {
 				var attr = this.getAttributeNode(name);
 				return attr ? attr.value : null
 			},
-			getAttributeNS: function(namespaceURI, localName) {
-				var attr = this.getAttributeNodeNS(namespaceURI, localName)
-				return attr ? attr.value : null
-			},
-
 			getAttributeNode: function(name) {
 				return this.attributes.getNamedItem(name)
 			},
-
-			getAttributeNodeNS: function(namespaceURI, localName) {
-				throw 'unsupported'
-			},
-
 			getElementsByTagName: function(name) {
 				return new NodeList($(this).searchElementsByTagName(name, []))
 			},
-
-			getElementsByTagNameNS: function(namespaceURI, name) {
-				throw 'unsupported'
-			},
-
 			hasAttribute: function(name) {
 				return this.getAttributeNode(name) ? true : false
 			},
 
-			hasAttributeNS: function(namespaceURI, localName) {
-				return this.getAttributeNodeNS(namespaceURI, localName) ? true : false
-			},
-
 			removeAttribute: function(name) {
 				this.attributes.removeNamedItem(name)
-			},
-			removeAttributeNS: function(namespaceURI, localName) {
-				this.attributes.removeNamedItemNS(namespaceURI, localName)
 			},
 			removeAttributeNode: function(attr) {
 				$(this.attributes).removeNode(attr)
@@ -478,16 +429,8 @@ crosscheck.dom = (function() {
 				attr.value = value
 				this.attributes.setNamedItem(attr)
 			},
-			setAttributeNS: function(namespaceURI, localName, value) {
-				var attr = this.ownerDocument.createAttributeNS(namespaceURI, localName)
-				attr.value = value
-				this.attributes.setNamedItemNS(attr)
-			},
 			setAttributeNode: function(attr) {
 				this.attributes.setNamedItem(attr)
-			},
-			setAttributeNodeNS: function(attr) {
-				this.attributes.setNamedItemNS(attr)
 			}
 		})
 

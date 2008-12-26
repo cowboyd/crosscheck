@@ -17,7 +17,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 	}
 
 	public CrosscheckMetaDef(Object superclass, Function definition) {
-		CrosscheckMetaDef def = null;
+		CrosscheckMetaDef def;
 		if (superclass instanceof CrosscheckMetaDef) {
 			def = (CrosscheckMetaDef) superclass;
 			this.superclass = def.getMetaClass();
@@ -88,6 +88,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 
 	public static class MetaClass {
 		private Function constructor;
+		private Function indexLookup;
 		private HashMap<Object, Attr> attrs = new HashMap<Object, Attr>();
 		private Prototype prototype;
 		private MetaClass privateInterface;
@@ -220,6 +221,10 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 			}
 		}
 
+		public void indexedLookup(Function getter) {
+			this.indexLookup = getter;
+		}
+
 		public Function getConstructor() {
 			return constructor;
 		}
@@ -227,6 +232,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 		public Object getAttrValue(String name, final Instance object) {
 			return this.attrs.get(name).get(object);
 		}
+
 
 		public void setAttrValue(String name, final Instance object, final Object value) {
 			this.attrs.get(name).set(object, value);
@@ -236,6 +242,21 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 			return this.attrs.get(name) != null;
 		}
 
+		public Object getIndexedValue(final int index, final Scriptable instance) {
+			if (this.indexLookup != null) {
+				return new ContextFactory().call(new ContextAction() {
+					public Object run(Context cx) {
+						return indexLookup.call(cx, indexLookup.getParentScope(), instance, new Object[] {index});
+					}
+				});
+			} else {
+				return ScriptableObject.NOT_FOUND;
+			}
+		}
+
+		public boolean hasIndexedValue(int index, Scriptable instance) {
+			return getIndexedValue(index, instance) != ScriptableObject.NOT_FOUND;
+		}
 
 		private class Attr {
 			protected String name;
@@ -361,18 +382,15 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 			}
 
 			public Object get(int index, Scriptable start) {
-//				System.out.println("CrosscheckMetaDef$Prototype.get");
-				return null;
+				return this.classdef.getIndexedValue(index, start);
 			}
 
 			public boolean has(String name, Scriptable start) {
-//				System.out.println("CrosscheckMetaDef$Prototype.has");
 				return this.classdef.hasAttr(name);
 			}
 
 			public boolean has(int index, Scriptable start) {
-//				System.out.println("CrosscheckMetaDef$Prototype.has");
-				return false;  //To change body of implemented methods use File | Settings | File Templates.
+				return this.classdef.hasIndexedValue(index, start);
 			}
 
 			public void put(String name, Scriptable start, Object value) {
@@ -494,7 +512,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 					}
 					return iface;
 				} else {
-					return UniqueTag.NOT_FOUND;
+					return ScriptableObject.NOT_FOUND;
 				}
 			}
 		}

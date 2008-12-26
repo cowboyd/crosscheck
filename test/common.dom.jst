@@ -86,36 +86,7 @@ crosscheck.suite("Core DOM", {
 		assertEquals(result, parent.lastChild)
 		assertEquals(crosscheck.dom.CDATA_SECTION_NODE, result.nodeType)
 	},
-//
-//	test_offsetParent: function() {
-//		var html =
-//				'<div id="wrapper">' +
-//				'  <div><span id="static"></span></div>' +
-//				'  <div style="position:absolute"><span id="abs"><span id="descendant"></span></span></div>' +
-//				'  <div style="position:relative"><span id="rel"></span></div>' +
-//				'</div>'
-//		document.body.innerHTML = html
-//
-//		assertNull(document.documentElement.offsetParent)
-//		assertNull(document.getElementsByTagName('HEAD')[0].offsetParent)
-//		assertNull(document.body.offsetParent)
-//
-//		var wrapper = document.getElementById('wrapper')
-//		assertEquals(document.body, wrapper.offsetParent)
-//
-//		var stat = document.getElementById('static')
-//		assertEquals(document.body, stat.offsetParent)
-//
-//		var rel = document.getElementById('rel')
-//		assertEquals(rel.parentNode, rel.offsetParent)
-//
-//		var abs = document.getElementById('abs')
-//		assertEquals(abs.parentNode, abs.offsetParent)
-//
-//		var desc = document.getElementById('descendant')
-//		assertEquals(abs.parentNode, desc.offsetParent)
-//	},
-//
+
 	test_insertBefore_with_null_reference_node: function() {
 		var element = document.createElement('div');
 		element.insertBefore(document.createElement('span'), null);
@@ -130,13 +101,6 @@ crosscheck.suite("Core DOM", {
 		assertEquals(first, element.firstChild);
 		assertEquals(next, element.lastChild);
 	},
-//
-//	test_default_document_structure: function() {
-//		var docElement = document.documentElement;
-//		assertEquals(2, docElement.childNodes.length)
-//		assertEquals('HEAD', docElement.childNodes[0].nodeName)
-//		assertEquals('BODY', docElement.childNodes[1].nodeName)
-//	},
 
 	test_setAttribute: function() {
 		var div = document.createElement('div')
@@ -150,43 +114,48 @@ crosscheck.suite("Core DOM", {
 	},
 
 	test_attributes_are_available_via_index: function() {
-//		var source = crosscheck.Host.parse("<div we='await' silent='tristeros' empire='' />");
 		var div = document.createElement('div')
 		div.setAttribute('we', 'await')
 		div.setAttribute('silent', 'tristeros')
 		div.setAttribute('empire', '')
 		assertEquals(3, div.attributes.length);
 
-		assertEquals(div.getAttributeNode('we'), div.attributes.item(0))
-		assertEquals(div.getAttributeNode('silent'), div.attributes.item(1))
-//
-//		assertEquals(attr0, source.attributes[0]);
-//		assertEquals(attr1, source.attributes[1]);
+		var we = div.getAttributeNode('we');
+		assertEquals(we, div.attributes.item(0))
+		var silent = div.getAttributeNode('silent');
+		assertEquals(silent, div.attributes.item(1))
+
+		assertEquals(we, div.attributes[0]);
+		assertEquals(silent, div.attributes[1]);
 	},
-//
-//	test_childNodes_are_available_via_index: function() {
-//		var source = crosscheck.dom.write("<div><span/><span/></div>");
-//		assertEquals(2, source.childNodes.length);
-//
-//		var child0 = source.childNodes.item(0);
-//		var child1 = source.childNodes.item(1);
-//
-//		assertEquals(child0, source.childNodes[0]);
-//		assertEquals(child1, source.childNodes[1]);
-//
-//		var child2 = source.appendChild(document.createElement('input'));
-//		assertEquals(child2, source.childNodes[2]);
-//
-//		var child3 = source.insertBefore(document.createElement('input'), child2);
-//		assertEquals(child3, source.childNodes[2]);
-//		assertEquals(child2, source.childNodes[3]);
-//
-//		var child4 = source.replaceChild(document.createElement('input'), child0);
-//		assertEquals(child4, source.childNodes[0]);
-//
-//		source.removeChild(child2);
-//		assertNotDefined(source.childNodes[3]);
-//	},
+
+	test_childNodes_are_available_via_index: function() {
+		var source = document.createElement('div')
+		source.appendChild(document.createElement('span'))
+		source.appendChild(document.createElement('span'))
+
+		assertEquals(2, source.childNodes.length);
+
+		var child0 = source.childNodes.item(0);
+		var child1 = source.childNodes.item(1);
+
+		assertEquals(child0, source.childNodes[0]);
+		assertEquals(child1, source.childNodes[1]);
+
+		var child2 = source.appendChild(document.createElement('input'));
+		assertEquals(child2, source.childNodes[2]);
+
+		var child3 = source.insertBefore(document.createElement('input'), child2);
+		assertEquals(child3, source.childNodes[2]);
+		assertEquals(child2, source.childNodes[3]);
+
+		var child4 = document.createElement('input');
+		source.replaceChild(child4, child0);
+		assertEquals(child4, source.childNodes[0]);
+
+		source.removeChild(child2);
+		assertNotDefined(source.childNodes[3]);
+	},
 //
 //	test_cloneNode_shallow: function() {
 //		var source = crosscheck.Host.parse(
@@ -260,7 +229,7 @@ crosscheck.suite("Core DOM", {
 //		document.body.removeAttribute('name');
 //		assertNull(document.body.getAttribute('name'));
 //	},
-//
+
 //	test_getElementsByTagName: function() {
 //		var div1 = document.documentElement.appendChild(document.createElement('div'));
 //		div1.appendChild(document.createElement('span'));
@@ -285,7 +254,7 @@ crosscheck.suite("Core DOM", {
 //		assertEquals(div3, list.item(1));
 //		assertEquals(div4, list.item(2));
 //	},
-////
+
 //	test_getElementById: function() {
 //		document.documentElement.id = 'bob';
 //
@@ -346,7 +315,7 @@ crosscheck.suite("Core DOM", {
 		var element = document.createElement('div');
 		assertEquals('div', element.nodeName);
 		assertEquals(document, element.ownerDocument);
-		var element = document.createElement('DiV')
+		element = document.createElement('DiV')
 		assertEquals('DiV', element.tagName)
 	},
 	test_document_createElement_without_name: function() {
@@ -575,13 +544,5 @@ crosscheck.suite("Core DOM", {
 //				'<li/>' +
 //				'</ul>', div.innerHTML);
 //	},
-//
-//	assertNode: function(node, parentNode, nodeName, nodeType, ownerDocument, nodeValue, childCount) {
-//		assertEquals(parentNode, node.parentNode);
-//		assertEquals(nodeName, node.nodeName);
-//		assertEquals(nodeType, node.nodeType);
-//		assertEquals(ownerDocument, node.ownerDocument);
-//		assertEquals(nodeValue, node.nodeValue);
-//		assertEquals(childCount, node.childNodes.length);
-//	}
+
 });
