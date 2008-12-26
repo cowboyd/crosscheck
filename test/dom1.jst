@@ -31,7 +31,7 @@
  * crosscheck@thefrontside.net
  * http://thefrontside.net
  */
-crosscheck.suite("Core DOM", {
+crosscheck.suite("DOM Level 1", {
 
 	setup: function() {
 		document = new crosscheck.dom.Document();
@@ -381,7 +381,7 @@ crosscheck.suite("Core DOM", {
 
 		assertEquals(0, fragment.childNodes.length)
 	},
-//
+
 //	test_appendChild_from_wrong_document_causes_error: function() {
 //		var parent = document.createElement('div');
 //		var child = crosscheck.Host.parseXML('<span/>').documentElement;
@@ -389,7 +389,7 @@ crosscheck.suite("Core DOM", {
 //			parent.appendChild(child);
 //		});
 //	},
-//
+
 	test_insertBefore: function() {
 		var parent = document.createElement('div');
 		var refChild = parent.appendChild(document.createElement('span'));
@@ -489,60 +489,5 @@ crosscheck.suite("Core DOM", {
 		assertEquals(child3, child2.nextSibling);
 		assertEquals(null, child3.nextSibling);
 	}
-//
-//	test_setting_innerHTML_element: function() {
-//		var div = document.createElement('DIV');
-//
-//		div.innerHTML = '<span>sub-text</span>';
-//		assertEquals(1, div.childNodes.length);
-//		assertEquals(crosscheck.html.ELEMENT_NODE, div.childNodes[0].nodeType);
-//		assertEquals('SPAN', div.childNodes[0].nodeName);
-//		assertEquals('sub-text', div.childNodes[0].innerHTML);
-//	},
-//
-//	test_setting_innerHTML_text: function() {
-//		var div = document.createElement('DIV');
-//
-//		div.innerHTML = 'text';
-//		assertEquals(1, div.childNodes.length);
-//		assertEquals(crosscheck.html.TEXT_NODE, div.childNodes[0].nodeType);
-//		assertEquals('text', div.childNodes[0].data);
-//	},
-//
-//	test_append_to_innerHTML: function() {
-//		var div = document.createElement('DIV');
-//		div.innerHTML = 'text';
-//		div.innerHTML += '<span>sub-text</span>';
-//
-//		assertEquals(2, div.childNodes.length);
-//
-//		assertEquals(crosscheck.html.TEXT_NODE, div.childNodes[0].nodeType);
-//		assertEquals('text', div.childNodes[0].data);
-//
-//		assertEquals(crosscheck.html.ELEMENT_NODE, div.childNodes[1].nodeType);
-//		assertEquals('SPAN', div.childNodes[1].nodeName);
-//		assertEquals('sub-text', div.childNodes[1].innerHTML);
-//	},
-//
-//	test_get_innerHTML: function() {
-//		var div = document.createElement('DIV');
-//		var span = div.appendChild(document.createElement('SPAN'));
-//		span.id = "sparkly";
-//		span.setAttribute('sparkle', 'true');
-//		var comment = div.appendChild(document.createComment('nice tan'));
-//		var text = div.appendChild(document.createTextNode('lorem ipsum'));
-//		var ul = div.appendChild(document.createElement('UL'));
-//		ul.appendChild(document.createElement('LI'));
-//		ul.appendChild(document.createElement('LI'));
-//
-//		assertEquals(
-//				'<span id="sparkly" sparkle="true"/>' +
-//				'<!--nice tan-->' +
-//				'lorem ipsum' +
-//				'<ul>' +
-//				'<li/>' +
-//				'<li/>' +
-//				'</ul>', div.innerHTML);
-//	},
 
 });

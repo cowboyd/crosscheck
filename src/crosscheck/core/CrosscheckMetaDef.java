@@ -88,6 +88,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 
 	public static class MetaClass {
 		private Function constructor;
+		private Function namedLookup;
 		private Function indexLookup;
 		private HashMap<Object, Attr> attrs = new HashMap<Object, Attr>();
 		private Prototype prototype;
@@ -221,9 +222,14 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 			}
 		}
 
+		public void namedLookup(Function getter) {
+			this.namedLookup = getter;
+		}
+
 		public void indexedLookup(Function getter) {
 			this.indexLookup = getter;
 		}
+
 
 		public Function getConstructor() {
 			return constructor;

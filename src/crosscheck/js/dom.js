@@ -108,7 +108,7 @@ crosscheck.dom = (function() {
 				var index = $(this).children.indexOf(oldChild)
 				if (index >= 0) {
 					this.removeChild(oldChild)
-					$(this).insertAt(newChild, index)					
+					$(this).insertAt(newChild, index)
 				}
 				return oldChild
 			}
@@ -141,21 +141,21 @@ crosscheck.dom = (function() {
 	var NodeList = def(function($) {
 		//noinspection JSUnresolvedFunction
 		this.initializer(function(list) {
-			$(this).list = new Array(list.length)
+			$(this).elements = new Array(list.length)
 			for (var i = 0; i < list.length; i++) {
-				$(this).list[i] = list[i]
+				$(this).elements[i] = list[i]
 			}
 		})
 
 		//noinspection JSUnresolvedFunction
 		this.attrReadOnly('length', function() {
-			return $(this).list.length
+			return $(this).elements.length
 		})
 
 		//noinspection JSUnresolvedFunction
 		this.methods({
 			item: function(index) {
-				return $(this).list[index]
+				return $(this).elements[index]
 			}
 		})
 
@@ -169,7 +169,7 @@ crosscheck.dom = (function() {
 		this.initializer(function() {
 			$(this, {
 				map: new java.util.HashMap(),
-				list: [] //used for referencing attributes by index.
+				elements: [] //used for referencing attributes by index.
 			})
 		})
 
@@ -183,13 +183,13 @@ crosscheck.dom = (function() {
 				return $(this).map.get(name).value
 			},
 			item: function(index) {
-				return $(this).list[index]
+				return $(this).elements[index]
 			},
 			removeNamedItem: function(name) {
 				var entry = $(this).map.get(name)
 				if (entry) {
 					$(this).map.remove(entry)
-					$(this).list.splice(entry.index, 1)
+					$(this).elements.splice(entry.index, 1)
 					return entry.value
 				} else {
 					throw "NOT_FOUND_ERR"
@@ -204,10 +204,10 @@ crosscheck.dom = (function() {
 				} else {
 					entry = {
 						value: node,
-						index: $(this).list.length
+						index: $(this).elements.length
 					}
 					$(this).map.put(node.nodeName, entry)
-					$(this).list.push(node)
+					$(this).elements.push(node)
 					return null
 				}
 			}

@@ -31,7 +31,7 @@
 			<arg path="${js.src.dir}/bootstrap.js"/>
 			<arg path="${js.src.dir}/assertions.js"/>
 			<arg path="${js.src.dir}/dom.js"/>
-			<arg path="${js.src.dir}/html.js"/>
+			<arg path="${js.src.dir}/html1.js"/>
 			<arg path="${js.src.dir}/host.js"/>
 			<arg path="${js.src.dir}/hosts/firefox_3_0.js"/>
 			<arg path="${js.src.dir}/hosts/IE_6.js"/>
@@ -49,6 +49,7 @@
 			<fileset dir="${class.dir}"/>
 		</copy>
 		<unzip src="${rhino.jar}" dest="${jar.dir}"/>
+		<unzip src="${tagsoup.jar}" dest="${jar.dir}"/>
 		<jar destfile="${jar.file}" basedir="${jar.dir}">
 			<manifest>
 				<attribute name="Main-Class" value="crosscheck.ConsoleRunner"/>
@@ -58,11 +59,11 @@
 
 	<target name="test" depends="jar">
 		<java jar="${jar.file}" fork="true">
+			<arg line="test/assertions.jst"/>
 			<arg line="test/jshost.jst"/>
 			<arg line="test/jshost.inheritance.jst"/>
-			<!--<arg line="test/run.jst"/>-->
-			<!--<arg line="test/assertions.jst"/>-->
-			<arg line="test/common.dom.jst"/>
+			<arg line="test/dom1.jst"/>
+			<arg line="test/html1.jst"/>
 			<!--<arg line="test/interface.dom.jst"/>-->
 		</java>
 	</target>

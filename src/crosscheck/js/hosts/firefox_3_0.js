@@ -1,5 +1,5 @@
 //noinspection JSUnresolvedFunction,JSUnresolvedVariable
-crosscheck.depends(crosscheck.java.js.dom)
+crosscheck.depends(crosscheck.java.js.html1)
 
 crosscheck.firefox_3_0 = {
 //	open: function() {
