@@ -99,7 +99,7 @@ crosscheck.html1 = (function() {
 
 		this.attrReadWrite('innerHTML', {
 			get: function() {
-
+				return new String(collectHTML(this, new java.lang.StringBuffer(), false))
 			},
 			set: function(html) {
 				var fragment = parse(this.ownerDocument, html)
@@ -111,6 +111,25 @@ crosscheck.html1 = (function() {
 		})
 		this.attrAlias('tagName', 'nodeName')
 	})
+
+
+	function collectHTML(element, buffer, outer) {
+		if (outer) {
+			buffer.append("<" + element.tagName.toLowerCase() +">")
+		}
+		for (var i = 0; i < element.childNodes.length; i++) {
+			var child = element.childNodes[i]
+			if (child.nodeType == dom.ELEMENT_NODE) {
+				collectHTML(child, buffer, true)
+			} else if (child.nodeType == dom.TEXT_NODE) {
+				buffer.append(child.data)
+			}
+		}
+		if (outer) {
+			buffer.append("</" + element.tagName.toLowerCase() + ">")
+		}
+		return buffer
+	}
 
 	function parse(document, html) {
 		var parser = new tagsoup.Parser()
@@ -159,12 +178,16 @@ crosscheck.html1 = (function() {
 			},
 			characters: function(chars, start, length) {
 				top().buffer.append(chars, start, length)
+			},
+			ignoreableWhitespace: function(chars, start, length) {
+				top().buffer.append(chars, start, length)
 			}
 
 		}))
 		parser.parse(new sax.InputSource(new java.io.StringReader(html)))
 		return top().element
 	}
+
 
 	return {
 		HTMLCollection: HTMLCollection,

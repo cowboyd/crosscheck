@@ -41,14 +41,15 @@ crosscheck.suite("HTML Level 1", {
 	test_setting_innerHTML_element: function() {
 		var div = document.createElement('DIV');
 
-		div.innerHTML = '<span>sub-text</span>';
+		div.innerHTML = '<span> sub-text</span>';
 		assertEquals(1, div.childNodes.length);
 		var span = div.childNodes[0];
 		assertEquals(crosscheck.dom.ELEMENT_NODE, span.nodeType);
 		assertEquals('SPAN', span.nodeName);
 		assertEquals(1, span.childNodes.length)
-		assertEquals('sub-text', span.childNodes[0].data)
-//		assertEquals('sub-text', span.innerHTML);
+		assertEquals(' sub-text', span.childNodes[0].data)
+		assertEquals('<span> sub-text</span>', div.innerHTML)
+		assertEquals(' sub-text', span.innerHTML)
 	}
 //
 //	test_setting_innerHTML_text: function() {
