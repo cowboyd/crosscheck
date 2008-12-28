@@ -241,30 +241,35 @@ crosscheck.suite("DOM Level 1", {
 		assertNull(div.getAttribute('name'));
 	},
 
-//	test_getElementsByTagName: function() {
-//		var div1 = document.documentElement.appendChild(document.createElement('div'));
-//		div1.appendChild(document.createElement('span'));
-//		var div2 = div1.appendChild(document.createElement('div'));
-//		div1.appendChild(document.createElement('span'));
-//		var span1 = div1.appendChild(document.createElement('span'));
-//		var div3 = span1.appendChild(document.createElement('div'));
-//		var div4 = div3.appendChild(document.createElement('div'));
-//
-//		var list = document.getElementsByTagName('DIV');
-//
-//		assertEquals(4, list.length);
-//		assertEquals(div1, list.item(0));
-//		assertEquals(div2, list.item(1));
-//		assertEquals(div3, list.item(2));
-//		assertEquals(div4, list.item(3));
-//
-//		list = div1.getElementsByTagName('DIV');
-//
-//		assertEquals(3, list.length);
-//		assertEquals(div2, list.item(0));
-//		assertEquals(div3, list.item(1));
-//		assertEquals(div4, list.item(2));
-//	},
+	test_getElementsByTagName: function() {
+		var top = document.createElement('div')
+		var div1 = document.createElement('div');
+		top.appendChild(div1)
+		div1.appendChild(document.createElement('span'));
+		var div2 = div1.appendChild(document.createElement('div'));
+		div1.appendChild(document.createElement('span'));
+		var span1 = div1.appendChild(document.createElement('span'));
+		var div3 = span1.appendChild(document.createElement('div'));
+		var div4 = div3.appendChild(document.createElement('div'));
+
+		var list = top.getElementsByTagName('div');
+
+		assertEquals(4, list.length);
+		assertEquals(div1, list.item(0));
+		assertEquals(div2, list.item(1));
+		assertEquals(div3, list.item(2));
+		assertEquals(div4, list.item(3));
+
+		list = div1.getElementsByTagName('div');
+
+		assertEquals(3, list.length);
+		assertEquals(div2, list.item(0));
+		assertEquals(div3, list.item(1));
+		assertEquals(div4, list.item(2));
+
+		list = top.getElementsByTagName('*')
+		assertEquals(7, list.length)
+	},
 
 //	test_getElementById: function() {
 //		document.documentElement.id = 'bob';

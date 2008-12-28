@@ -345,11 +345,9 @@ crosscheck.dom = (function() {
 			createProcessingInstruction: function(target, data) {
 				return new ProcessingInstruction(this, target, data)
 			},
-
 			createTextNode: function(data) {
 				return new Text(this, null, data)
 			},
-
 			importNode: function(deep) {
 				throw 'unsupported'
 			}
@@ -425,15 +423,16 @@ crosscheck.dom = (function() {
 
 		this.privateMethods({
 			searchElementsByTagName: function(tagName, list) {
-				for (var i = 0; i < this.childNodes; i ++) {
+				for (var i = 0; i < this.childNodes.length; i ++) {
 					var child = this.childNodes[i]
 					if (child.nodeType == ELEMENT_NODE) {
-						if (child.tagName == tagName) {
+						if (tagName == '*' || child.tagName == tagName) {
 							list.push(child)
 						}
 						$(child).searchElementsByTagName(tagName, list)
 					}
 				}
+				return list
 			}
 		})
 	})
