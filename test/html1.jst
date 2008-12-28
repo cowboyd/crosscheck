@@ -56,31 +56,31 @@ crosscheck.suite("HTML Level 1", {
 		var div = document.createElement('div')
 		div.innerHTML = '<div class="outer"><span id="one"> 1 </span> <span id="two"> 2 </span></div>'
 		assertEquals('<div class="outer"><span id="one"> 1 </span> <span id="two"> 2 </span></div>', div.innerHTML)
+	},
+
+	test_setting_innerHTML_text: function() {
+		var div = document.createElement('DIV');
+
+		div.innerHTML = 'text';
+		assertEquals(1, div.childNodes.length);
+		assertEquals(crosscheck.dom.TEXT_NODE, div.childNodes[0].nodeType);
+		assertEquals('text', div.childNodes[0].data);
+	},
+
+	test_append_to_innerHTML: function() {
+		var div = document.createElement('DIV');
+		div.innerHTML = 'text';
+		div.innerHTML += '<span>sub-text</span>';
+
+		assertEquals(2, div.childNodes.length);
+
+		assertEquals(crosscheck.dom.TEXT_NODE, div.childNodes[0].nodeType);
+		assertEquals('text', div.childNodes[0].data);
+
+		assertEquals(crosscheck.dom.ELEMENT_NODE, div.childNodes[1].nodeType);
+		assertEquals('SPAN', div.childNodes[1].nodeName);
+		assertEquals('sub-text', div.childNodes[1].innerHTML);
 	}
-//
-//	test_setting_innerHTML_text: function() {
-//		var div = document.createElement('DIV');
-//
-//		div.innerHTML = 'text';
-//		assertEquals(1, div.childNodes.length);
-//		assertEquals(crosscheck.html.TEXT_NODE, div.childNodes[0].nodeType);
-//		assertEquals('text', div.childNodes[0].data);
-//	},
-//
-//	test_append_to_innerHTML: function() {
-//		var div = document.createElement('DIV');
-//		div.innerHTML = 'text';
-//		div.innerHTML += '<span>sub-text</span>';
-//
-//		assertEquals(2, div.childNodes.length);
-//
-//		assertEquals(crosscheck.html.TEXT_NODE, div.childNodes[0].nodeType);
-//		assertEquals('text', div.childNodes[0].data);
-//
-//		assertEquals(crosscheck.html.ELEMENT_NODE, div.childNodes[1].nodeType);
-//		assertEquals('SPAN', div.childNodes[1].nodeName);
-//		assertEquals('sub-text', div.childNodes[1].innerHTML);
-//	},
 //
 //	test_get_innerHTML: function() {
 //		var div = document.createElement('DIV');

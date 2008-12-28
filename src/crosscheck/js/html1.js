@@ -103,6 +103,10 @@ crosscheck.html1 = (function() {
 			},
 			set: function(html) {
 				var fragment = parse(this.ownerDocument, html)
+				var children = this.childNodes;
+				for (var i = 0; i < children.length; i++) {
+					this.removeChild(children[i])
+				}
 				this.appendChild(fragment)
 			}
 		})
@@ -172,20 +176,24 @@ crosscheck.html1 = (function() {
 
 		parser.setContentHandler(new sax.ContentHandler({
 			startElement: function(uri, localName, qName, attrs) {
-				if (localName != 'html' && localName != 'body') {
+				if (localName != 'html') {
 					flush()
-					var element = push(document.createElement(new String(localName)), true)
-					for (var i = 0; attrs && i < attrs.length; i++) {
-						var name = attrs.getLocalName(i);
-						var value = attrs.getValue(i);
-						element.setAttribute(name, value)
+					if (localName != 'body') {
+						var element = push(document.createElement(new String(localName)), true)
+						for (var i = 0; attrs && i < attrs.length; i++) {
+							var name = attrs.getLocalName(i);
+							var value = attrs.getValue(i);
+							element.setAttribute(name, value)
+						}
 					}
 				}
 			},
 			endElement: function(uri, localName, qName) {
-				if (localName != 'html' && localName != 'body') {
+				if (localName != 'html') {
 					flush()
-					pop()
+					if (localName != 'body') {
+						pop()
+					}
 				}
 			},
 			characters: function(chars, start, length) {
@@ -196,7 +204,8 @@ crosscheck.html1 = (function() {
 			}
 
 		}))
-		parser.parse(new sax.InputSource(new java.io.StringReader(html)))
+		var wrapped = "<html><body>" + html + "</body></html>";
+		parser.parse(new sax.InputSource(new java.io.StringReader(wrapped)))
 		return top().element
 	}
 
