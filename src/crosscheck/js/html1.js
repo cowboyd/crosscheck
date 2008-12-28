@@ -115,7 +115,16 @@ crosscheck.html1 = (function() {
 
 	function collectHTML(element, buffer, outer) {
 		if (outer) {
-			buffer.append("<" + element.tagName.toLowerCase() +">")
+			buffer.append("<" + element.tagName.toLowerCase())
+			for (var i = 0; i < element.attributes.length; i++) {
+				var attr = element.attributes[i]
+//				crosscheck.print("attr: " + attr.name + ", value: " + attr.value)
+				var value = attr.value ? new String(attr.value) : ""
+				if (value.replace(/\s+/g, '') != '') {
+					buffer.append(" " + attr.name + '="' + attr.value + '"')
+				}
+			}
+			buffer.append(">")
 		}
 		for (var i = 0; i < element.childNodes.length; i++) {
 			var child = element.childNodes[i]
@@ -163,14 +172,17 @@ crosscheck.html1 = (function() {
 
 		parser.setContentHandler(new sax.ContentHandler({
 			startElement: function(uri, localName, qName, attrs) {
-//				crosscheck.print("startElement(uri: " + uri + ", localName: " + localName + ", qName: " + qName)
 				if (localName != 'html' && localName != 'body') {
 					flush()
-					push(document.createElement(new String(localName)), true)
+					var element = push(document.createElement(new String(localName)), true)
+					for (var i = 0; attrs && i < attrs.length; i++) {
+						var name = attrs.getLocalName(i);
+						var value = attrs.getValue(i);
+						element.setAttribute(name, value)
+					}
 				}
 			},
 			endElement: function(uri, localName, qName) {
-//				crosscheck.print("endElement(uri: " + uri + ", localName: " + localName + ", qName: " + qName)
 				if (localName != 'html' && localName != 'body') {
 					flush()
 					pop()

@@ -129,6 +129,15 @@ crosscheck.suite("DOM Level 1", {
 		assertEquals(silent, div.attributes[1]);
 	},
 
+	test_overwriting_an_attribute_preserves_index: function() {
+		var div = document.createElement('div')
+		div.setAttribute('we', 'await')
+		assertEquals('we', div.attributes[0].name)
+		assertEquals('await', div.attributes[0].value)
+		div.setAttribute('we', 'leave')
+		assertEquals('leave', div.attributes[0].value)
+	},
+
 	test_childNodes_are_available_via_index: function() {
 		var source = document.createElement('div')
 		source.appendChild(document.createElement('span'))
@@ -223,12 +232,14 @@ crosscheck.suite("DOM Level 1", {
 //		assertEquals(div1, list.item(1))
 //		assertEquals(div4, list.item(2))
 //	},
-//	test_removeAttribute: function() {
-//		document.body.setAttribute('name', 'bob');
-//		assertEquals('bob', document.body.getAttribute('name'));
-//		document.body.removeAttribute('name');
-//		assertNull(document.body.getAttribute('name'));
-//	},
+	test_removeAttribute: function() {
+		var div = document.createElement('div')
+
+		div.setAttribute('name', 'bob');
+		assertEquals('bob', div.getAttribute('name'));
+		div.removeAttribute('name');
+		assertNull(div.getAttribute('name'));
+	},
 
 //	test_getElementsByTagName: function() {
 //		var div1 = document.documentElement.appendChild(document.createElement('div'));

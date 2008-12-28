@@ -50,6 +50,12 @@ crosscheck.suite("HTML Level 1", {
 		assertEquals(' sub-text', span.childNodes[0].data)
 		assertEquals('<span> sub-text</span>', div.innerHTML)
 		assertEquals(' sub-text', span.innerHTML)
+	},
+
+	test_setting_and_getting_innerHTML_with_attributes: function() {
+		var div = document.createElement('div')
+		div.innerHTML = '<div class="outer"><span id="one"> 1 </span> <span id="two"> 2 </span></div>'
+		assertEquals('<div class="outer"><span id="one"> 1 </span> <span id="two"> 2 </span></div>', div.innerHTML)
 	}
 //
 //	test_setting_innerHTML_text: function() {

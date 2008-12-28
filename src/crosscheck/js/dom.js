@@ -180,7 +180,8 @@ crosscheck.dom = (function() {
 		//noinspection JSUnresolvedFunction,JSUnusedLocalSymbols,JSUnusedLocalSymbols
 		this.methods({
 			getNamedItem: function(name) {
-				return $(this).map.get(name).value
+				var entry = $(this).map.get(name);
+				return entry ? entry.value : null
 			},
 			item: function(index) {
 				return $(this).elements[index]
@@ -188,7 +189,7 @@ crosscheck.dom = (function() {
 			removeNamedItem: function(name) {
 				var entry = $(this).map.get(name)
 				if (entry) {
-					$(this).map.remove(entry)
+					$(this).map.remove(name)
 					$(this).elements.splice(entry.index, 1)
 					return entry.value
 				} else {
@@ -200,6 +201,7 @@ crosscheck.dom = (function() {
 				if (entry) {
 					var oldAttr = entry.value;
 					entry.value = node
+					$(this).elements[entry.index] = node
 					return oldAttr
 				} else {
 					entry = {
@@ -216,18 +218,6 @@ crosscheck.dom = (function() {
 		this.indexedLookup(function(index) {
 			return this.item(index)
 		})
-
-		this.privateMethods({
-			removeNode: function(node) {
-				for (var i = $(this).map.keySet().iterator(); i.hasNext();) {
-					var key = i.next()
-					if ($(this).map.get(key) == node) {
-						$(this).map.remove(key)
-					}
-				}
-			}
-		})
-
 	})
 
 	var Attr = def(Node, function($) {
@@ -417,12 +407,11 @@ crosscheck.dom = (function() {
 			hasAttribute: function(name) {
 				return this.getAttributeNode(name) ? true : false
 			},
-
 			removeAttribute: function(name) {
 				this.attributes.removeNamedItem(name)
 			},
 			removeAttributeNode: function(attr) {
-				$(this.attributes).removeNode(attr)
+				this.attributes.removeNamedItem(attr.name)
 			},
 			setAttribute: function(name, value) {
 				var attr = this.ownerDocument.createAttribute(name)
