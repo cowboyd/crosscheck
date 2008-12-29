@@ -80,27 +80,27 @@ crosscheck.suite("HTML Level 1", {
 		assertEquals(crosscheck.dom.ELEMENT_NODE, div.childNodes[1].nodeType);
 		assertEquals('SPAN', div.childNodes[1].nodeName);
 		assertEquals('sub-text', div.childNodes[1].innerHTML);
+	},
+
+	test_get_innerHTML: function() {
+		var div = document.createElement('DIV');
+		var span = div.appendChild(document.createElement('SPAN'));
+		span.id = "sparkly";
+		span.setAttribute('sparkle', 'true');
+		var comment = div.appendChild(document.createComment('nice tan'));
+		var text = div.appendChild(document.createTextNode('lorem ipsum'));
+		var ul = div.appendChild(document.createElement('UL'));
+		ul.appendChild(document.createElement('LI'));
+		ul.appendChild(document.createElement('LI'));
+
+		assertEquals(
+				'<span id="sparkly" sparkle="true"></span>' +
+				'<!--nice tan-->' +
+				'lorem ipsum' +
+				'<ul>' +
+				'<li/>' +
+				'<li/>' +
+				'</ul>', div.innerHTML);
 	}
-//
-//	test_get_innerHTML: function() {
-//		var div = document.createElement('DIV');
-//		var span = div.appendChild(document.createElement('SPAN'));
-//		span.id = "sparkly";
-//		span.setAttribute('sparkle', 'true');
-//		var comment = div.appendChild(document.createComment('nice tan'));
-//		var text = div.appendChild(document.createTextNode('lorem ipsum'));
-//		var ul = div.appendChild(document.createElement('UL'));
-//		ul.appendChild(document.createElement('LI'));
-//		ul.appendChild(document.createElement('LI'));
-//
-//		assertEquals(
-//				'<span id="sparkly" sparkle="true"/>' +
-//				'<!--nice tan-->' +
-//				'lorem ipsum' +
-//				'<ul>' +
-//				'<li/>' +
-//				'<li/>' +
-//				'</ul>', div.innerHTML);
-//	},
 
 })

@@ -116,19 +116,26 @@ crosscheck.html1 = (function() {
 		this.attrAlias('tagName', 'nodeName')
 	})
 
+	var ATOMIC_TAGS = {
+		P: true,
+		BR: true,
+		LI: true
+	}
+
+
 
 	function collectHTML(element, buffer, outer) {
+		var atomic = element.childNodes.length == 0 && ATOMIC_TAGS[element.tagName];
 		if (outer) {
 			buffer.append("<" + element.tagName.toLowerCase())
 			for (var i = 0; i < element.attributes.length; i++) {
 				var attr = element.attributes[i]
-//				crosscheck.print("attr: " + attr.name + ", value: " + attr.value)
 				var value = attr.value ? new String(attr.value) : ""
 				if (value.replace(/\s+/g, '') != '') {
 					buffer.append(" " + attr.name + '="' + attr.value + '"')
 				}
 			}
-			buffer.append(">")
+			buffer.append(atomic ? "/>" : ">")
 		}
 		for (var i = 0; i < element.childNodes.length; i++) {
 			var child = element.childNodes[i]
@@ -136,9 +143,11 @@ crosscheck.html1 = (function() {
 				collectHTML(child, buffer, true)
 			} else if (child.nodeType == dom.TEXT_NODE) {
 				buffer.append(child.data)
+			} else if (child.nodeType == dom.COMMENT_NODE) {
+				buffer.append("<!--" + child.data + "-->")
 			}
 		}
-		if (outer) {
+		if (outer && !atomic) {
 			buffer.append("</" + element.tagName.toLowerCase() + ">")
 		}
 		return buffer
