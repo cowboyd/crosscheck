@@ -1,4 +1,4 @@
-
+//noinspection JSUnresolvedVariable
 crosscheck.depends(crosscheck.java.js.dom)
 
 crosscheck.html1 = (function() {
@@ -7,6 +7,46 @@ crosscheck.html1 = (function() {
 		def = crosscheck.metadef,
 		tagsoup = Packages.org.ccil.cowan.tagsoup,
 		sax = Packages.org.xml.sax
+
+	//creates a property getter backed by an Element attribute
+	function attrGetter(attrName) {
+		return function() {
+			return this.getAttribute(attrName)
+		}
+	}
+
+	//creates a property setter backed by an Element attribute
+	function attrSetter(attrName) {
+		return function(value) {
+			this.setAttribute(attrName, value)
+		}
+	}
+
+	function attrAccesor(attrName) {
+		return {
+			get: attrGetter(attrName),
+			set: attrSetter(attrName)
+		}
+	}
+
+	//binds a list of read-only properties to an Element attribute
+	function bindAttrReadOnly(cls) {
+		for (var i = 1; i < arguments.length; i++) {
+			var attrName = arguments[i]
+			cls.attrReadOnly(attrName, attrGetter(attrName))
+		}
+	}
+
+	//binds a list of read-write properties to an Element attribute
+	function bindAttrReadWrite(cls) {
+		for (var i = 1; i < arguments.length; i++) {
+			var attrName = arguments[i]
+			cls.attrReadWrite(attrName, {
+				get: attrGetter(attrName),
+				set: attrSetter(attrName)
+			})
+		}
+	}
 
 	var HTMLCollection = def(function($) {
 		this.initializer(function() {
@@ -27,9 +67,12 @@ crosscheck.html1 = (function() {
 				}
 			}
 		})
+		//e.g. document.forms[0]
 		this.indexedLookup(function(index) {
 			return this.item(index)
 		})
+
+		//e.g. document.forms.searchForm -> document.forms.namedItem('searchForm')
 		this.namedLookup(function(name) {
 			return this.namedItem(name)
 		})
@@ -70,35 +113,19 @@ crosscheck.html1 = (function() {
 	var HTMLElement = def(dom.Element, function($) {
 		this.initializer(function($super, ownerDocument, name) {
 			$super(ownerDocument, name)
-			this.setAttribute("id", '')
-			this.setAttribute("title", '')
-			this.setAttribute("lang", '')
-			this.setAttribute("dir", '')
-			this.setAttribute("class", '')
+			this.id = ""
+			this.title = ""
+			this.lang = ""
+			this.dir = ""
+			this.className = ""
 		})
-		this.attrReadWrite('id', {
-			get: function() {return this.getAttribute('id')},
-			set: function(id) {this.setAttribute('id', id)}
-		})
-		this.attrReadWrite('title', {
-			get: function() {return this.getAttribute('title')},
-			set: function(title) {this.setAttribute('title', title)}
-		})
-		this.attrReadWrite('lang', {
-			get: function() {return this.getAttribute('lang')},
-			set: function(lang) {this.setAttribute('lang', lang)}
-		})
-		this.attrReadWrite('dir', {
-			get: function() {return this.getAttribute('dir')},
-			set: function(dir) {this.setAttribute('dir', dir)}
-		})
-		this.attrReadWrite('className', {
-			get: function() {return this.getAttribute('class')},
-			set: function(className) {this.setAttribute('class', className)}
-		})
+		bindAttrReadWrite(this, 'id', 'title', 'lang', 'dir')
+
+		this.attrReadWrite('className', attrAccesor("class"))
 
 		this.attrReadWrite('innerHTML', {
 			get: function() {
+				//noinspection JSUnresolvedVariable
 				return new String(collectHTML(this, new java.lang.StringBuffer(), false))
 			},
 			set: function(html) {
@@ -115,6 +142,99 @@ crosscheck.html1 = (function() {
 		})
 		this.attrAlias('tagName', 'nodeName')
 	})
+
+	var HTMLHtmlElement = def(HTMLElement, function() {
+		this.initializer(function($super, ownerDocument) {
+			$super(ownerDocument, 'html')
+			this.setAttribute("version", "")
+		})
+		bindAttrReadOnly(this, 'version')
+	})
+
+	var HTMLHeadElement = def(HTMLElement, function() {
+		this.initializer(function($super, ownerDocument) {
+			$super(ownerDocument, 'head')
+			this.setAttribute("profile", "")
+		})
+		bindAttrReadOnly(this, "profile")
+	})
+
+	var HTMLLinkElement = def(HTMLElement, function() {
+		this.initializer(function($super, ownerDocument) {
+			$super(ownerDocument, 'link')
+			this.disabled = false
+			this.charset = ""
+			this.href = ""
+			this.hreflang = ""
+			this.media = ""
+			this.rel = ""
+			this.target = ""
+			this.type = ""
+		})
+		bindAttrReadWrite(this, 'disabled', 'charset', 'href', 'hreflang', 'media', 'rel', 'target', 'type')
+	})
+
+	var HTMLTitleElement = def(HTMLElement, function() {
+		this.initializer(function($super, ownerDocument) {
+			$super(ownerDocument, 'title')
+		})
+		this.attrReadWrite('text', {
+			get: function() {
+				var text = new java.lang.StringBuffer()
+				for (var i = 0; i < this.childNodes.length; i++) {
+					var child = this.chilNodes[i]
+					if (child.nodeType == dom.TEXT_NODE || child.nodeType == dom.CDATA_SECTION_NODE) {
+						text.append(child.data)
+					}
+				}
+				return new String(text)
+			},
+			set: function(text) {
+				this.innerHTML = text
+			}
+		})
+	})
+
+	var HTMLMetaElement = def(HTMLElement, function() {
+		this.initializer(function($super, ownerDocument) {
+			$super(ownerDocument, 'meta')
+		})
+		bindAttrReadWrite(this, 'name', 'content', 'scheme')
+		this.attrReadWrite('httpEquiv', attrAccesor('http-equiv'))
+	})
+
+	var HTMLFormElement = def(HTMLElement, function() {
+		this.initializer(function($super, ownerDocument) {
+			$super(ownerDocument, 'form')
+		})
+
+		this.methods({
+			submit: function() {
+
+			},
+			reset: function() {
+
+			}
+		})
+	})
+
+	function myForm() {
+		for (var ancestor = this.parentNode; ancestor; ancestor = this.parentNode) {
+			if (ancestor.tagName == 'FORM') {
+				return ancestor
+			}
+		}
+		return null;
+	}
+
+	var HTMLSelectElement = def(HTMLElement, function() {
+		this.initializer(function($super, ownerDocument) {
+			$super(ownerDocument, 'select')
+			this.type = "select-one"
+		})
+		this.attrReadOnly('form', myForm)
+	})
+
 
 	var ATOMIC_TAGS = {
 		P: true,
@@ -160,6 +280,7 @@ crosscheck.html1 = (function() {
 			if (append) {
 				top().element.appendChild(element)
 			}
+			//noinspection JSUnresolvedVariable
 			stack.push({element: element, buffer: new java.lang.StringBuffer()})
 			return element
 		}
@@ -183,6 +304,7 @@ crosscheck.html1 = (function() {
 
 		push(document.createDocumentFragment())
 
+		//noinspection JSUnusedLocalSymbols
 		parser.setContentHandler(new sax.ContentHandler({
 			startElement: function(uri, localName, qName, attrs) {
 				if (localName != 'html') {
@@ -214,6 +336,7 @@ crosscheck.html1 = (function() {
 
 		}))
 		var wrapped = "<html><body>" + html + "</body></html>";
+		//noinspection JSUnresolvedVariable
 		parser.parse(new sax.InputSource(new java.io.StringReader(wrapped)))
 		return top().element
 	}
@@ -221,6 +344,13 @@ crosscheck.html1 = (function() {
 
 	return {
 		HTMLCollection: HTMLCollection,
-		HTMLDocument: HTMLDocument
+		HTMLDocument: HTMLDocument,
+		HTMLHtmlElement: HTMLHtmlElement,
+		HTMLHeadElement: HTMLHeadElement,
+		HTMLTitleElement: HTMLTitleElement,
+		HTMLLinkElement: HTMLLinkElement,
+		HTMLMetaElement: HTMLMetaElement,
+		HTMLFormElement: HTMLFormElement,
+		HTMLSelectElement: HTMLSelectElement
 	}
 })()
