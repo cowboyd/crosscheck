@@ -358,7 +358,7 @@ crosscheck.dom = (function() {
 		this.initializer(function($super, document) {
 			$super(document, DOCUMENT_FRAGMENT_NODE)
 		})
-		this.attrReadOnly('nodeName', '#document-fragment')
+		this.constant('nodeName', '#document-fragment')
 	})
 
 	var DocumentType = def(Node, function($) {
