@@ -38,6 +38,18 @@ crosscheck.suite("HTML Level 1", {
 		document = new crosscheck.html1.HTMLDocument()
 	},
 
+	test_getElementById: function() {
+		document.documentElement.id = 'bob';
+
+		var div1 = document.documentElement.appendChild(document.createElement('div'));
+		div1.appendChild(document.createElement('span'));
+		var div2 = div1.appendChild(document.createElement('div'));
+		div2.id = 'dave'
+
+		assertEquals(document.documentElement, document.getElementById('bob'));
+		assertEquals(div2, document.getElementById('dave'));
+	},
+
 	test_setting_innerHTML_element: function() {
 		var div = document.createElement('DIV');
 

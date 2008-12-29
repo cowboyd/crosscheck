@@ -86,6 +86,7 @@ crosscheck.html1 = (function() {
 				title: "",
 				referrer: "",
 				URL: "",
+				documentElement: this.createElement('html'),
 				body: this.createElement('body'),
 				images: new HTMLCollection(),
 				applets: new HTMLCollection(),
@@ -94,18 +95,43 @@ crosscheck.html1 = (function() {
 				anchors: new HTMLCollection(),
 				cookie: ""
 			})
+			$(this).documentElement.appendChild($(this).body)
 		})
-		this.attrReadOnly('referrer', 'URL', 'images', 'applets', 'links', 'forms', 'anchors')
+		this.attrReadOnly('documentElement', 'referrer', 'URL', 'images', 'applets', 'links', 'forms', 'anchors')
 		this.attrReadWrite('title', 'body', 'cookie')
 		this.methods({
 			open: function() {},
 			close: function() {},
 			write: function() {},
 			writeln: function() {},
-			getElementById: function() {},
+			getElementById: function(id) {
+				if (!id || id == '') {
+					return null
+				} else {
+					return $(this).searchElementForId($(this).documentElement, id)
+				}
+			},
 			getElementsByName: function() {},
 			createElement: function(tagName) {
 				return new HTMLElement(this, tagName)
+			}
+		})
+
+		this.privateMethods({
+			searchElementForId: function(element, id) {
+				if (element.id == id) {
+					return element
+				}
+				for (var i = 0; i < element.childNodes.length; i++) {
+					var child = element.childNodes[i]
+					if (child.nodeType == dom.ELEMENT_NODE) {
+						var hit = $(this).searchElementForId(child, id)
+						if (hit) {
+							return hit
+						}
+					}
+				}
+				return null;
 			}
 		})
 	})
