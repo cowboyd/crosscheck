@@ -8,6 +8,7 @@ import java.util.HashMap;
 public class CrosscheckMetaDef extends ScriptableObject implements Function {
 
 	public static final Access ACCESS = new Access();
+	public static final Extend EXTEND = new Extend();
 	private MetaClass superclass;
 	private Function definition;
 	private MetaClass metaclass;
@@ -524,7 +525,6 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 		}
 	}
 
-
 	public static class Access extends ScriptableObject implements Function {
 		public String getClassName() {
 			return "MetaObjectPrivateAccess";
@@ -561,4 +561,34 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 		}
 	}
 
+	public static class Extend extends ScriptableObject implements Function {
+
+		public String getClassName() {
+			return "MetaObjectExtend";
+		}
+
+		public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+			if (args.length < 2) {
+				return null;
+			} else {
+				Scriptable metaclass = (Scriptable) args[0];
+				Scriptable extension = (Scriptable) args[1];
+				if (!(metaclass instanceof CrosscheckMetaDef)) {
+					throw new RuntimeException("Expected Meta Definition, got <" + metaclass.getClass() + ">");
+				}
+				if (!(extension instanceof Function)) {
+					throw new RuntimeException("extend called with '" + extension.getClassName() + "', not Function");
+				}
+
+				CrosscheckMetaDef metathing = (CrosscheckMetaDef) metaclass;
+				Function definition = (Function) extension;
+				definition.call(cx, scope, ScriptRuntime.toObject(scope, metathing.getMetaClass()), new Object[] {ACCESS});
+				return metaclass;
+			}
+		}
+
+		public Scriptable construct(Context cx, Scriptable scope, Object[] args) {
+			throw new RuntimeException("Access Denied");
+		}
+	}
 }

@@ -32,6 +32,7 @@
 			<arg path="${js.src.dir}/assertions.js"/>
 			<arg path="${js.src.dir}/dom.js"/>
 			<arg path="${js.src.dir}/html1.js"/>
+			<arg path="${js.src.dir}/innerHTML.js"/>
 			<arg path="${js.src.dir}/host.js"/>
 			<arg path="${js.src.dir}/hosts/firefox_3_0.js"/>
 			<arg path="${js.src.dir}/hosts/IE_6.js"/>
@@ -62,6 +63,7 @@
 			<arg line="test/assertions.jst"/>
 			<arg line="test/jshost.jst"/>
 			<arg line="test/jshost.inheritance.jst"/>
+			<arg line="test/jshost.extend.jst"/>
 			<arg line="test/dom1.jst"/>
 			<arg line="test/html1.jst"/>
 			<!--<arg line="test/interface.dom.jst"/>-->

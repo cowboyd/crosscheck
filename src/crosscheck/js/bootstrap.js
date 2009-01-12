@@ -83,6 +83,8 @@ crosscheck = {
 }
 
 //noinspection JSUnresolvedVariable
+crosscheck.metadef.extend = crosscheck.java.core.CrosscheckMetaDef.EXTEND
+//noinspection JSUnresolvedVariable
 crosscheck.metadef.access = crosscheck.java.core.CrosscheckMetaDef.ACCESS
 
 crosscheck.internal.Suite.prototype = {

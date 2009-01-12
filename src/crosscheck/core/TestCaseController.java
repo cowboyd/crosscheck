@@ -35,9 +35,12 @@ public class TestCaseController implements Test {
 		Function impl = (Function) bridge.get("run");
 		for (Object id : this.prototype.getIds()) {
 			if (id instanceof String) {
-				Scriptable member = (Scriptable) this.prototype.get((String)id, this.prototype);
-				if (member instanceof Function) {					
-					member.setParentScope(bridge.getTopLevelScope());
+				Object object = this.prototype.get((String) id, this.prototype);
+				if (object instanceof Scriptable) {//could be undefined, which is not scriptable.
+					Scriptable member = (Scriptable) object;
+					if (member instanceof Function) {
+						member.setParentScope(bridge.getTopLevelScope());
+					}
 				}
 			}
 		}

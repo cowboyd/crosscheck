@@ -1,16 +1,10 @@
 //noinspection JSUnresolvedFunction,JSUnresolvedVariable
-crosscheck.depends(crosscheck.java.js.html1)
+(function() {
 
-crosscheck.firefox_3_0 = {
-//	open: function() {
-//		//noinspection JSUndeclaredVariable
-//		document = new crosscheck.html.HTMLDocument();
-//		//noinspection JSUndeclaredVariable
-//		window = new Object()
-//	},
-//	load: function(filename) {
-//		crosscheck.load(filename)
-//	}
-}
-
-crosscheck.host = crosscheck.firefox_3_0
+	//noinspection JSUnresolvedVariable
+	var js = crosscheck.java.js;
+	crosscheck.depends(
+			js.html1,
+			js.innerHTML
+			)
+})()
