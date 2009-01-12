@@ -70,5 +70,22 @@ crosscheck.suite('Javascript Host Object Inheritance', {
 
 		var b = new B()
 		assertEquals('grease', crosscheck.metadef.access(b).word())
+	},
+
+	test_invoking_overridden_super_methods: function() {
+		var A = this.def(function() {
+			this.method('timesTwo', function(num) {
+				return 2 * num
+			})
+		})
+
+		var B = this.def(A, function() {
+			this.method('timesTwo', function($super, num) {
+				return $super(num)
+			})
+		})
+
+		var b = new B()
+		assertEquals(10, b.timesTwo(5))
 	}
 })

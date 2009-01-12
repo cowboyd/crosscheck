@@ -126,7 +126,7 @@ crosscheck.suite('Javascript Host Object Protocol', {
 		assertEquals('function', typeof c.multiply)
 	},
 
-	test_define_a_set_of_methods: function() {
+	test_define_a_set_of_methods_as_constants: function() {
 		var Calc = this.def(function() {
 			this.constants({
 				MULT_SYMBOL: "*",

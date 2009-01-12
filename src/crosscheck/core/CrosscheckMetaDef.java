@@ -55,7 +55,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 	public Object doConstruct(Context cx, Scriptable scope, final MetaClass.Instance instance, final MetaClass metaClass, Object[] args) {
 		Function constructor = metaClass.getConstructor();
 		if (constructor != null) {
-			String source = cx.decompileFunction(constructor,  0).trim();
+			String source = cx.decompileFunction(constructor, 0).trim();
 			Object[] params;
 			if (source.startsWith("function ($super,") || source.startsWith("function ($super)")) {
 				if (metaClass.getSuperclass() == null) {
@@ -88,6 +88,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 
 	public static class MetaClass {
 		private Function constructor;
+		@SuppressWarnings({"UnusedDeclaration"})
 		private Function namedLookup;
 		private Function indexLookup;
 		private HashMap<Object, Attr> attrs = new HashMap<Object, Attr>();
@@ -171,7 +172,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 		public void attrAlias(String name, String... aliases) {
 			for (String alias : aliases) {
 				if (this.hasAttr(name)) {
-					this.attrs.put(alias, new Alias(alias, this.attrs.get(name)));
+					attrs.put(alias, new Alias(alias, this.attrs.get(name)));
 				} else {
 					throw new IllegalArgumentException("cannot create alias for non-existent attribute: '" + name + "'");
 				}
@@ -252,7 +253,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 			if (this.indexLookup != null) {
 				return new ContextFactory().call(new ContextAction() {
 					public Object run(Context cx) {
-						return indexLookup.call(cx, indexLookup.getParentScope(), instance, new Object[] {index});
+						return indexLookup.call(cx, indexLookup.getParentScope(), instance, new Object[]{index});
 					}
 				});
 			} else {
@@ -312,6 +313,7 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 					}
 				}
 			}
+
 		}
 
 		private class StaticAttr extends Attr {
@@ -380,7 +382,9 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 
 			public Object get(String name, Scriptable start) {
 				if (this.classdef.hasAttr(name)) {
-					return this.classdef.getAttrValue(name, (Instance) start);
+					Instance instance = (Instance) start;
+					Object value = this.classdef.getAttrValue(name, instance);
+					return value != null && value instanceof Function ? new ChainedFunction((Function) value, name) : value;
 				} else if ("toString".equals(name) || "valueOf".equals(name)) {
 					return TO_STRING;
 				}
@@ -451,6 +455,35 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 			public boolean hasInstance(Scriptable instance) {
 //				System.out.println("CrosscheckMetaDef$Prototype.hasInstance");
 				return false;  //To change body of implemented methods use File | Settings | File Templates.
+			}
+
+			private class ChainedFunction extends BaseFunction {
+				private Function impl;
+				private String name;
+
+				public ChainedFunction(Function impl, String name) {
+					super(impl.getParentScope(), impl.getPrototype());
+					this.name = name;
+					this.impl = impl;
+				}
+
+				@Override
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+					Object[] params = args;
+					if (cx.decompileFunction(impl, 0).trim().startsWith("function ($super,") && thisObj instanceof Instance) {
+						final Instance instance = (Instance) thisObj;
+						params = new Object[args.length + 1];
+						System.arraycopy(args, 0, params, 1, params.length - 1);
+						final Function supper = (Function) instance.getPrototype().getPrototype().get(name, instance);
+						params[0] = new BaseFunction(this.impl.getParentScope(), this.impl.getPrototype()) {
+							@Override
+							public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args) {
+								return supper.call(cx, scope, instance, args);
+							}
+						};
+					}
+					return this.impl.call(cx, scope, thisObj, params);
+				}
 			}
 		}
 
