@@ -202,6 +202,12 @@ public class CrosscheckMetaDef extends ScriptableObject implements Function {
 			constants(methods);
 		}
 
+		public void deleteAttr(String... names) {
+			for (String name : names) {
+				attrs.remove(name);
+			}
+		}
+
 		public void privateMethod(String name, final Function body) {
 			this.privateInterface.constant(name, new BaseFunction(body.getParentScope(), body.getPrototype()) {
 				@Override

@@ -18,5 +18,22 @@ crosscheck.suite('Javascript Host Extensions', {
 
 		assertEquals(20, a1.value)
 		assertEquals(20, a2.value)
+	},
+
+	test_remove_attribute_from_an_existing_class: function() {
+		var A = this.def(function() {
+			this.constant('foo', 'bar')
+			this.constant('baz', 'bang')
+		})
+
+		var a = new A();
+		assertEquals('bar', a.foo)
+		assertEquals('bang', a.baz)
+		this.extend(A, function() {
+			this.deleteAttr('foo', 'baz')
+
+		})
+		assertNotDefined(a.foo)
+		assertNotDefined(a.baz)
 	}
 })
