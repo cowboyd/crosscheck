@@ -5,68 +5,52 @@
 	<property name="class.dir" value="${build.dir}/classes"/>
 	<property name="jar.dir" value="${build.dir}/jar"/>
 	<property name="src.dir" value="${basedir}/src"/>
-	<property name="js.src.dir" value="${src.dir}/crosscheck/js"/>
-	<property name="jsc.output.dir" value="${build.dir}/jsc-classes"/>
+	<property name="test.src.dir" value="${basedir}/test"/>
+	<property name="test.class.dir" value="${build.dir}/test-classes"/>
 
 	<property name="jar.file" value="${build.dir}/crosscheck.jar"/>
 
 	<property name="rhino.jar" value="${lib.dir}/rhino-1.7.R1.jar"/>
 	<property name="tagsoup.jar" value="${lib.dir}/tagsoup-1.2.jar"/>
-	<property name="aspectjtools.jar" value="${lib.dir}/aspectjtools-1.6.jar"/>
-	<property name="aspectjrt.jar" value="${lib.dir}/aspectjrt-1.6.jar"/>
+	<property name="junit.jar" value="${lib.dir}/junit-4.5.jar"/>
 
 	<target name="init">
 		<mkdir dir="${build.dir}"/>
-		<mkdir dir="${jsc.output.dir}"/>
 		<mkdir dir="${class.dir}"/>
+		<mkdir dir="${test.class.dir}"/>
 	</target>
 
 	<target name="clean">
 		<delete dir="${build.dir}"/>
 	</target>
 
-	<target name="compile-javascript" depends="init">
-		<java classpath="${rhino.jar}" classname="org.mozilla.javascript.tools.jsc.Main">
-			<arg line="-package crosscheck.js -d ${jsc.output.dir} -debug"/>
-			<arg path="${js.src.dir}/bootstrap.js"/>
-			<arg path="${js.src.dir}/assertions.js"/>
-			<arg path="${js.src.dir}/dom.js"/>
-			<arg path="${js.src.dir}/html1.js"/>
-			<arg path="${js.src.dir}/innerHTML.js"/>
-			<arg path="${js.src.dir}/host.js"/>
-			<arg path="${js.src.dir}/hosts/firefox_3_0.js"/>
-			<arg path="${js.src.dir}/hosts/IE_6.js"/>
-		</java>
-	</target>
 
-	<target name="compile" depends="compile-javascript">
-		<javac classpath="${rhino.jar}:${tagsoup.jar}:${jsc.output.dir}" srcdir="${src.dir}" destdir="${class.dir}" debug="on"/>
-	</target>
-
-	<target name="jar" depends="compile">
-		<mkdir dir="${jar.dir}"/>
-		<copy todir="${jar.dir}">
-			<fileset dir="${jsc.output.dir}"/>
-			<fileset dir="${class.dir}"/>
+	<target name="compile" depends="init">
+		<javac classpath="${rhino.jar}:${tagsoup.jar}" srcdir="${src.dir}" destdir="${class.dir}" debug="on"/>
+		<copy todir="${class.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.js"/>
+			</fileset>
 		</copy>
-		<unzip src="${rhino.jar}" dest="${jar.dir}"/>
-		<unzip src="${tagsoup.jar}" dest="${jar.dir}"/>
-		<jar destfile="${jar.file}" basedir="${jar.dir}">
-			<manifest>
-				<attribute name="Main-Class" value="crosscheck.ConsoleRunner"/>
-			</manifest>
-		</jar>
+
 	</target>
 
-	<target name="test" depends="jar">
-		<java jar="${jar.file}" fork="true">
-			<arg line="test/assertions.jst"/>
-			<arg line="test/jshost.jst"/>
-			<arg line="test/jshost.inheritance.jst"/>
-			<arg line="test/jshost.extend.jst"/>
-			<arg line="test/dom1.jst"/>
-			<arg line="test/html1.jst"/>
-			<!--<arg line="test/interface.dom.jst"/>-->
+	<target name="compile-tests" depends="compile">
+		<javac classpath="${rhino.jar}:${tagsoup.jar}:${junit.jar}:${class.dir}" srcdir="${test.src.dir}" destdir="${test.class.dir}"/>
+		<copy todir="${test.class.dir}">
+			<fileset dir="${test.src.dir}">
+				<include name="**/*.js"/>
+			</fileset>
+		</copy>
+	</target>
+
+
+	<target name="test" depends="compile-tests">
+		<java classpath="${class.dir}:${test.class.dir}:${junit.jar}:${rhino.jar}:${tagsoup.jar}" fork="true" classname="org.junit.runner.JUnitCore">
+			<arg line="crosscheck.embed.EmbeddedObjects"/>
+			<arg line="crosscheck.Dom1Test"/>
 		</java>
 	</target>
+
+
 </project>

@@ -1,11 +1,9 @@
-crosscheck.dom = (function() {
+(function() {
+
 	//noinspection JSUnresolvedVariable
-	//var tagsoup = Packages.org.ccil.cowan.tagsoup
+	var $ctor = new Packages.crosscheck.embed.Constructor.Builder()
 
-	var def = crosscheck.metadef
-
-	var puts = function(msg) {
-		msg = msg || ''
+	function puts(msg) {
 		java.lang.System.out.println(msg)
 	}
 
@@ -23,7 +21,7 @@ crosscheck.dom = (function() {
 			NOTATION_NODE = 12
 
 
-	var Node = def(function($) {
+	var Node = $ctor(function($) {
 		this.initializer(function(document, nodeType) {
 			$(this, {
 				ownerDocument: document,
@@ -74,7 +72,7 @@ crosscheck.dom = (function() {
 				return this.insertBefore(child, null)
 			},
 			cloneNode: function(deep) {
-				return null
+				return null;
 			},
 			hasAttributes: function() {
 				return false;
@@ -117,6 +115,9 @@ crosscheck.dom = (function() {
 		//noinspection JSUnresolvedFunction
 		this.privateMethods({
 			insertAt: function(newChild, index) {
+				if (newChild.ownerDocument != this.ownerDocument) {
+					throw "Cannot add child of foreign document"
+				}
 				if (newChild.nodeType == DOCUMENT_FRAGMENT_NODE) {
 					var children = newChild.childNodes
 					for (var i = 0; i < children.length; i++) {
@@ -138,7 +139,7 @@ crosscheck.dom = (function() {
 
 	})
 
-	var NodeList = def(function($) {
+	var NodeList = $ctor(function($) {
 		//noinspection JSUnresolvedFunction
 		this.initializer(function(list) {
 			$(this).elements = new Array(list.length)
@@ -164,9 +165,10 @@ crosscheck.dom = (function() {
 		})
 	})
 
-	var NamedNodeMap = def(function($) {
+	var NamedNodeMap = $ctor(function($) {
 		//noinspection JSUnresolvedFunction
 		this.initializer(function() {
+			//noinspection JSUnresolvedVariable
 			$(this, {
 				map: new java.util.HashMap(),
 				elements: [] //used for referencing attributes by index.
@@ -220,7 +222,7 @@ crosscheck.dom = (function() {
 		})
 	})
 
-	var Attr = def(Node, function($) {
+	var Attr = $ctor(Node, function($) {
 		this.initializer(function($super, document, name, value, specified) {
 			$super(document, ATTRIBUTE_NODE)
 			$(this, {
@@ -232,10 +234,18 @@ crosscheck.dom = (function() {
 
 		this.attrReadWrite('value')
 		this.attrReadOnly('name', 'specified', 'ownerElement')
-		this.attrAlias('name', 'nodeName')
+		this.alias('name', 'nodeName')
+		this.methods({
+			toString: function() {
+				return ["[Attr " + this.name + "=" + this.value + "]"]
+			},
+			cloneNode: function() {
+				return new Attr(this.ownerDocument, this.name, this.value, this.specified)
+			}
+		})
 	})
 
-	var CharacterData = def(Node, function($) {
+	var CharacterData = $ctor(Node, function($) {
 		this.initializer(function($super, document, nodeType, data) {
 			$super(document, nodeType)
 			this.data = data || ''
@@ -253,7 +263,7 @@ crosscheck.dom = (function() {
 				$(this).data = data.split('')
 			}
 		})
-		this.attrAlias('data', 'nodeValue')
+		this.alias('data', 'nodeValue')
 		this.methods({
 			appendData: function(data) {
 				$(this).data = $(this).data.concat(data.split(''))
@@ -273,56 +283,73 @@ crosscheck.dom = (function() {
 		})
 	})
 
-	var Text = def(CharacterData, function($) {
+	var Text = $ctor(CharacterData, function($) {
 		this.initializer(function($super, document, nodeType, data) {
 			if (!nodeType) nodeType = TEXT_NODE
 			$super(document, nodeType, data)
 		})
-		this.attrReadOnly('nodeName', "#text")
-		this.method('splitText', function(offset) {
-			var unsplit = $(this).data
-			$(this).data = unsplit.slice(0, offset)
-			var doc = this.ownerDocument;
-			var nextData = unsplit.slice(offset).join('')
-			var next = this.nodeType == CDATA_SECTION_NODE ? doc.createCDATASection(nextData) : doc.createTextNode(nextData)
-			if (this.parentNode) {
-				$(this.parentNode).insertAfter(next, this)
+		this.constant('nodeName', "#text")
+		this.methods({
+			splitText: function(offset) {
+				var unsplit = $(this).data
+				$(this).data = unsplit.slice(0, offset)
+				var doc = this.ownerDocument;
+				var nextData = unsplit.slice(offset).join('')
+				var next = this.nodeType == CDATA_SECTION_NODE ? doc.createCDATASection(nextData) : doc.createTextNode(nextData)
+				if (this.parentNode) {
+					$(this.parentNode).insertAfter(next, this)
+				}
+				return next
+			},
+			cloneNode: function() {
+				return this.ownerDocument.createTextNode(this.data)
 			}
-			return next
 		})
 	})
 
-	var CDATASection = def(Text, function() {
+	var CDATASection = $ctor(Text, function() {
 		this.initializer(function($super, document, data) {
 			$super(document, CDATA_SECTION_NODE, data)
 		})
 		this.constant('nodeName', '#cdata-section')
 	})
 
-	var Comment = def(CharacterData, function() {
+	var Comment = $ctor(CharacterData, function() {
 		this.initializer(function($super, document, data) {
 			$super(document, COMMENT_NODE, data)
 		})
 		this.constant('nodeName', '#comment')
+		this.method('cloneNode', function() {
+			return this.ownerDocument.createComment(this.data)
+		})
 	})
 
-	var Document = def(Node, function($) {
+	var Document = $ctor(Node, function($) {
 		this.initializer(function($super) {
 			$super(null, DOCUMENT_NODE)
-			$(this).idmap = new java.util.HashMap()
+			//noinspection JSUnresolvedVariable
+			$(this, {
+				idmap: new java.util.HashMap(),
+				documentElement: this.createElement('html')
+			})
 		})
 		this.constant('nodeName', '#document')
 		this.attrReadOnly('doctype', function() {
 			throw 'Not Yet Implemented'
 		})
-		this.attrAlias('doctype', 'implementation', 'documentElement')
+		this.attrReadOnly('documentElement')
+		this.alias('doctype', 'implementation')
 
+		//noinspection JSUnusedLocalSymbols
 		this.methods({
 			getElementById: function(id) {
 				return $(this).idmap.get(id)
 			},
 			getElementsByTagName: function(tagName) {
 				return this.documentElement.getElementsByTagName(tagName)
+			},
+			getElementsByName: function(name) {
+				return new NodeList($(this.documentElement).searchElementsByName(name, [this.documentElement]))
 			},
 			createAttribute: function(name) {
 				return new Attr(this, name, null, false)
@@ -354,14 +381,15 @@ crosscheck.dom = (function() {
 		})
 	})
 
-	var DocumentFragment = def(Node, function($) {
+	//noinspection JSUnusedLocalSymbols
+	var DocumentFragment = $ctor(Node, function($) {
 		this.initializer(function($super, document) {
 			$super(document, DOCUMENT_FRAGMENT_NODE)
 		})
 		this.constant('nodeName', '#document-fragment')
 	})
 
-	var DocumentType = def(Node, function($) {
+	var DocumentType = $ctor(Node, function($) {
 		this.initializer(function($super, document) {
 			$super(document, DOCUMENT_TYPE_NODE)
 			$(this, {
@@ -376,7 +404,7 @@ crosscheck.dom = (function() {
 		this.attrReadOnly('entities', 'internalSubset', 'name', 'notations', 'publicId', 'systemId')
 	})
 
-	var Element = def(Node, function($) {
+	var Element = $ctor(Node, function($) {
 		this.initializer(function($super, document, name) {
 			if (!name || name.replace(/\s+/, '') == '') {
 				throw 'INVALID ELEMENT NAME'
@@ -389,7 +417,7 @@ crosscheck.dom = (function() {
 		})
 
 		this.attrReadOnly('tagName', 'attributes')
-		this.attrAlias('tagName', 'nodeName')
+		this.alias('tagName', 'nodeName')
 
 		this.methods({
 			getAttribute: function(name) {
@@ -403,6 +431,7 @@ crosscheck.dom = (function() {
 				return new NodeList($(this).searchElementsByTagName(name, []))
 			},
 			hasAttribute: function(name) {
+				//noinspection RedundantConditionalExpressionJS
 				return this.getAttributeNode(name) ? true : false
 			},
 			removeAttribute: function(name) {
@@ -418,6 +447,19 @@ crosscheck.dom = (function() {
 			},
 			setAttributeNode: function(attr) {
 				this.attributes.setNamedItem(attr)
+			},
+			cloneNode: function(deep) {
+				var clone = this.ownerDocument.createElement(this.tagName)
+				for (var i = 0; i < this.attributes.length; i++) {
+					var attr = this.attributes[i]
+					clone.setAttributeNode(attr.cloneNode(false))
+				}
+				if (deep) {
+					for (var j = 0; j < this.childNodes.length; j++) {
+						clone.appendChild(this.childNodes[j].cloneNode(true))
+					}
+				}
+				return clone
 			}
 		})
 
@@ -433,12 +475,32 @@ crosscheck.dom = (function() {
 					}
 				}
 				return list
+			},
+			searchElementsByName: function(name, nodes) {
+				var matches = []
+				var children = []
+				for (var i = 0; i < nodes.length; i++) {
+					var node = nodes[i]
+					if (node.nodeType == ELEMENT_NODE) {
+						for (var j = 0; j < node.childNodes.length; j++) {
+							children.push(node.childNodes[j])
+						}
+						if (node.getAttribute('name') == name) {
+							matches.push(node)
+						}
+					}
+				}
+				if (children.length == 0) {
+					return matches
+				} else {
+					return matches.concat($(this).searchElementsByName(name, children))
+				}
 			}
 		})
 	})
 
 
-	var Entity = def(Node, function($) {
+	var Entity = $ctor(Node, function($) {
 		this.initializer(function($super, document, name, publicId, systemId) {
 			$super(document, ENTITY_NODE)
 			$(this, {
@@ -451,7 +513,7 @@ crosscheck.dom = (function() {
 		this.attrReadOnly('nodeName', 'publicId', 'systemId')
 	})
 
-	var EntityReference = def(Node, function($) {
+	var EntityReference = $ctor(Node, function($) {
 		this.initializer(function($super, document, name) {
 			$super(document, ENTITY_REFERENCE_NODE)
 			$(this).nodeName = name
@@ -459,7 +521,7 @@ crosscheck.dom = (function() {
 		this.attrReadOnly('nodeName')
 	})
 
-	var Notation = def(Node, function($) {
+	var Notation = $ctor(Node, function($) {
 		this.initializer(function($super, document, name, publicId, systemId) {
 			$super(document, NOTATION_NODE)
 			$(this, {
@@ -471,7 +533,7 @@ crosscheck.dom = (function() {
 		this.attrReadOnly('nodeName', 'publicId', 'systemId')
 	})
 
-	var ProcessingInstruction = def(Node, function($) {
+	var ProcessingInstruction = $ctor(Node, function($) {
 		this.initializer(function($super, document, target, data) {
 			$super(document, PROCESSING_INSTRUCTION_NODE)
 			$(this, {
@@ -480,7 +542,7 @@ crosscheck.dom = (function() {
 			})
 		})
 		this.attrReadOnly('target')
-		this.attrAlias('target', 'nodeName')
+		this.alias('target', 'nodeName')
 		this.attrReadWrite('data')
 	})
 
